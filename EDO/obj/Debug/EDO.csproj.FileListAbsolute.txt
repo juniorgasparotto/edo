@@ -1,0 +1,13 @@
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\bin\Debug\EDO.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\bin\Debug\EDO.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\bin\Debug\Antlr3.Runtime.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\bin\Debug\NCalc.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\bin\Debug\Antlr3.Runtime.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\bin\Debug\NCalc.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\obj\Debug\EDO.csprojResolveAssemblyReference.cache
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\obj\Debug\EDO.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\obj\Debug\EDO.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\bin\Debug\EDO.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\bin\Debug\EDO.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\obj\Debug\EDO.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\obj\Debug\EDO.pdb

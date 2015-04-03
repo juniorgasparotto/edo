@@ -1,0 +1,15 @@
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\obj\Debug\EDO.Tests.csprojResolveAssemblyReference.cache
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EDO.Tests.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EDO.Tests.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EDO.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\NCalc.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\Antlr3.Runtime.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EDO.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\obj\Debug\EDO.Tests.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\obj\Debug\EDO.Tests.pdb
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\DatabaseTests.mdf
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EDO.Tests.dll.config
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EntityFramework.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EntityFramework.SqlServer.dll
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EntityFramework.xml
+D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EntityFramework.SqlServer.xml

@@ -1,0 +1,9 @@
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\bin\Debug\Builder.Dispatcher.dll
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\bin\Debug\Builder.Dispatcher.pdb
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\bin\Debug\NCalc.dll
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\bin\Debug\Antlr3.Runtime.dll
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\bin\Debug\NCalc.pdb
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\bin\Debug\Antlr3.Runtime.pdb
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\obj\Debug\Builder.Dispatcher.csprojResolveAssemblyReference.cache
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\obj\Debug\Builder.Dispatcher.dll
+D:\Junior\Projetos\GITHUB.COM\thiagosanches\builder\Builder.Dispatcher\obj\Debug\Builder.Dispatcher.pdb
