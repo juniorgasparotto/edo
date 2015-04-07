@@ -48,16 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converter\Interfaces\IConverterFromExpression.cs" />
+    <Compile Include="Converter\Interfaces\IConverterFromEDObjectToToken.cs" />
     <Compile Include="Expression\ExpressionBuilder - Copy.cs" />
-    <Compile Include="Expression\ExpressionResult.cs" />
-    <Compile Include="Reader\Tokens.cs" />
-    <Compile Include="Reader\EDOReader.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Converter\ConverterFromTokenToDebug.cs" />
+    <Compile Include="Converter\ConverterFromTokenToExpression.cs" />
+    <Compile Include="Converter\Interfaces\IConverterFromTokenToString.cs" />
+    <Compile Include="TokenResult.cs" />
+    <Compile Include="Tokens.cs" />
+    <Compile Include="Converter\ConverterFromEDObjectToToken.cs" />
     <Compile Include="EDObjectCollection.cs" />
     <Compile Include="ComplexParam.cs" />
     <Compile Include="EDObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Writer\EDOWriter.cs" />
+    <Compile Include="TokenizeType.cs" />
+    <Compile Include="Converter\ConverterFromExpressionToEDObject.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

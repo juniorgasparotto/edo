@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Diagnostics;
-using EDO.Dispatcher;
 
-namespace EDO.Reader
+namespace EDO
 {
     public class Token
     {

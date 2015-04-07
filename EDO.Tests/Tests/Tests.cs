@@ -1,55 +1,58 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Reflection;
-using EDO.Dispatcher;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using EDO.Writer;
-using EDO.Reader;
+using EDO.Converter;
 using EDO.Tests;
+using EDO.Tests.Tests;
 
 namespace EDO.Unit
 {
     [TestClass]
     public class Tests
     {
-        #region Helpers
-        public List<TestExpression> TestsExpressions;
+        private List<TestExpression> testsExpressions;
+        private DatabaseTests database;
+        private string delimiterCollection = "\r\n-----\r\n";
+        private string delimiterReferences = "\r\n";
 
         [TestInitialize]
         public void Setup()
         {
-            var database = new DatabaseTests();
-            TestsExpressions = database.TestExpressions.ToList();
+            this.database = new DatabaseTests();
+            this.UpdateByCode();
+            this.testsExpressions = database.TestExpressions.ToList();
         }
 
-        [TestMethod]
+        public void UpdateByCode()
+        {
+            var tests = database.TestExpressions.Where(f=>f.HasUpdatedByCode != 1).ToList();
+            foreach (var test in tests)
+            {
+                var collection = CreateObjectCollection(test.Input);
+                var convertToToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+                test.OutputNormal = (new ConverterFromTokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
+
+                var convertToToken2 = new ConverterFromEDObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
+                test.OutputAwaysRepeatDefinedExpression = (new ConverterFromTokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
+
+                var convertToToken3 = new ConverterFromEDObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
+                test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed = (new ConverterFromTokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
+                test.HasUpdatedByCode = 1;
+            }
+
+            database.SaveChanges();
+        }
+
         public EDObjectCollection CreateObjectCollection(string exp)
         {
             var collection = new EDObjectCollection();
-            var writer = new EDOWriter(collection);
-            writer.Writer(exp);
+            var writer = new ConverterFromExpressionToEDObject();
+            writer.Convert(exp, collection);
             return collection;
-        }
-
-        #endregion
-
-        [TestMethod]
-        public void TestMultiplesExpressions()
-        {
-            var init = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
-            foreach (var test in TestsExpressions)
-            {
-                var collection = CreateObjectCollection(test.Input);
-                var expReader = new EDOReader(collection.GetObjectByName(test.ObjectMain));
-                this.TestCommomCenaries(test, expReader);
-
-                expReader = new EDOReader(collection.GetObjectByName(test.ObjectMain), TypeReader.AwaysRepeatDefinedExpression);
-                this.TestCommomCenaries(test, expReader);
-            }
-            var end = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
         }
 
         [TestMethod]
@@ -57,7 +60,9 @@ namespace EDO.Unit
         {
             var expressionInput = "A + (B + (C + D)) + C";
             var collection = CreateObjectCollection(expressionInput);
-            var tokens = new EDOReader(collection.GetObjectByName("A")).GetTokens().FirstOrDefault().Value;
+            var converterToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+            var tokenResult = converterToken.Convert(collection.GetObjectByName("A"));
+            var tokens = tokenResult.Tokens[tokenResult.EdoObject];
 
             Assert.IsTrue(tokens[0].TokenValue.ToString() == "A");
             Assert.IsTrue(tokens[0].Level == 1);
@@ -121,80 +126,135 @@ namespace EDO.Unit
         }
 
         [TestMethod]
-        public void TestCollection()
+        public void TestUniqueExpression()
         {
-            var expressionInput = "A + C + D+ (B + (C + D)) + C";
+            var expressionInput = "A + (B + (C + D)) + C";
             var collection = CreateObjectCollection(expressionInput);
-            var reader = new EDOReader(collection.GetObjectByName("A"));
-            var res = reader.ToExpression(true);
+            var converterToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+            var converterExpression = new ConverterFromTokenToExpression();
+            var tokensCollection = converterToken.Convert(collection);
 
-            var reader2 = new EDOReader(collection.GetObjectByName("A"), TypeReader.AwaysRepeatDefinedExpression);
-            var res2 = reader2.ToExpression(true);
+            var edoMain = collection.GetObjectByName("A");
+            var expressionOutput = converterExpression.Convert(tokensCollection[edoMain].Tokens[edoMain]);
+            Assert.IsTrue(expressionInput == expressionOutput);
 
-            var reader3 = new EDOReader(collection.GetObjectByName("A"), TypeReader.NeverRepeatDefinedExpressionIfAlreadyParsed);
-            var res3 = reader3.ToExpression(true);
-
-            //var reader4 = new EDOReader(collection.GetObjectByName("A"), TypeReader.NeverRepeatDefinedExpressionIfAlreadyParsed);
-            //var res4 = reader4.ToExpression();
-            //var tokens = new EDOReader(collection.GetObjectByName("A")).GetTokens();
+            // EDObjectDirectly
+            var tokensResult = converterToken.Convert(collection.GetObjectByName("A"));
+            var expressionOutput2 = converterExpression.Convert(tokensResult.Tokens[tokensResult.EdoObject]);
+            Assert.IsTrue(expressionInput == expressionOutput2);
         }
 
-
-        /// <summary>
-        /// Test if method ToExpression is returned a expected result
-        /// Test if method Debug is returned a expected result
-        /// Test if method GetTokens return a correct sequence and the specials tokens [+, (, )] are of the unique instance
-        /// </summary>
-        /// <param name="outputExpected"></param>
-        /// <param name="expReader"></param>
-        public void TestCommomCenaries(TestExpression test, EDOReader expReader)
+        [TestMethod]
+        public void TestMultiplesExpressions()
         {
-            var output = test.OutputAndNormal;
-            if (string.IsNullOrWhiteSpace(output))
-                output = test.Input;
-
-            if (expReader.Type == TypeReader.AwaysRepeatDefinedExpression && !string.IsNullOrWhiteSpace(test.OutputAndAwaysRepeatDefinedExpression))
-                output = test.OutputAndAwaysRepeatDefinedExpression;
-
-            if (string.IsNullOrWhiteSpace(output))
-                throw new Exception("Output is null");
-
-            output = output.Replace(" ", "");
-            output = output.Replace("+", " + ");
-            output = output.Replace("-", " - ");
-
-            Assert.IsTrue(output == expReader.ToExpression(), "Test expression: compare output - " + test.Description);
-
-            var debug = expReader.Debug();
-            var debugSplit = debug.Split(new char[] { '\r', '\n' });
-            debugSplit = debugSplit.Where(f => f != "").ToArray();
-
-            var regEx = @"[a-zA-Z\._]+|\(|\)|\+|\-";
-
-            // Testing debug
-            string[] outputExpectedSplit = Regex.Matches(output, regEx).Cast<Match>().Select(m => m.Value).ToArray();
-            for (var i = 0; i < outputExpectedSplit.Length; i++)
+            var init = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
+            foreach (var test in testsExpressions)
             {
-                string[] debugSplit2 = Regex.Matches(debugSplit[i], regEx).Cast<Match>().Select(m => m.Value).ToArray();
-                Assert.IsTrue(outputExpectedSplit[i] == debugSplit2[0], "Test debug: compare output ´- " + test.Description);
+                var collection = CreateObjectCollection(test.Input);
+                this.ValidateCenaries(test, collection);
             }
 
-            var tokenParsedBag = expReader.GetTokens();
-            var tokens = tokenParsedBag.FirstOrDefault().Value;
+            var end = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
+        }
 
-            for (var i = 0; i < outputExpectedSplit.Length; i++)
+        public void ValidateCenaries(TestExpression test, EDObjectCollection collection)
+        {
+            if (string.IsNullOrWhiteSpace(test.OutputNormal))
+                throw new Exception("Output is null");
+
+            if (string.IsNullOrWhiteSpace(test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed))
+                throw new Exception("OutputNeverRepeatDefinedExpressionIfAlreadyParsed is null");
+
+            if (string.IsNullOrWhiteSpace(test.OutputAwaysRepeatDefinedExpression))
+                throw new Exception("OutputAwaysRepeatDefinedExpression is null");
+
+            //output = output.Replace(" ", "");
+            //output = output.Replace("+", " + ");
+            //output = output.Replace("-", " - ");
+
+            var converterNormal = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+            var tokensNormal = converterNormal.Convert(collection);
+            var normal = (new ConverterFromTokenToExpression()).Convert(tokensNormal, delimiterCollection);
+
+            var converterAwaysRepeat = new ConverterFromEDObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
+            var tokensAwaysRepeat = converterAwaysRepeat.Convert(collection);
+            var awaysRepeat = (new ConverterFromTokenToExpression()).Convert(tokensAwaysRepeat, delimiterCollection);
+
+            var converterNeverRepeat = new ConverterFromEDObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
+            var tokensNeverRepeat = converterNeverRepeat.Convert(collection);
+            var neverRepeat = (new ConverterFromTokenToExpression()).Convert(tokensNeverRepeat, delimiterCollection);
+
+            Assert.IsTrue(test.OutputNormal == normal, "Test expression: compare output normal - " + test.Description);
+            this.ValidateDebug(test, tokensNormal, normal);
+            this.ValidateTokens(test, tokensNormal, normal);
+
+            Assert.IsTrue(test.OutputAwaysRepeatDefinedExpression == awaysRepeat, "Test expression: compare output aways repeat - " + test.Description);
+            this.ValidateDebug(test, tokensAwaysRepeat, awaysRepeat);
+            this.ValidateTokens(test, tokensAwaysRepeat, awaysRepeat);
+
+            Assert.IsTrue(test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed == neverRepeat, "Test expression: compare output never repeat - " + test.Description);
+            this.ValidateDebug(test, tokensNeverRepeat, neverRepeat);
+            this.ValidateTokens(test, tokensNeverRepeat, neverRepeat);
+        }
+
+        private void ValidateDebug(TestExpression test, Dictionary<EDObject, TokenResult> tokens, string output)
+        {
+            var convert = new ConverterFromTokenToDebug();
+            var delimiterDebugRef = "*******";
+            var debug = convert.Convert(tokens, delimiterCollection, delimiterDebugRef);
+
+            var outputSplitCollection = output.Split(new string[] { delimiterCollection }, StringSplitOptions.None);
+            var debugSplitCollection = debug.Split(new string[] { delimiterCollection }, StringSplitOptions.None);
+            for (var i = 0; i < outputSplitCollection.Length; i++)
             {
-                if (tokens[i].TokenValue is TokenValuePlus)
-                    Assert.IsTrue(tokens[i].TokenValue == TokenValuePlus.Instance, "Test get token: plus instance - " + test.Description);
+                var outputSplitRefs = outputSplitCollection[i].Split(new string[] { delimiterReferences }, StringSplitOptions.None);
+                var debugSplitRefs = debugSplitCollection[i].Split(new string[] { delimiterDebugRef }, StringSplitOptions.None);
+                for (var iRef = 0; iRef < outputSplitRefs.Length; iRef++)
+                {
+                    var debugSplit = debugSplitRefs[iRef].Split(new char[] { '\r', '\n' });
+                    debugSplit = debugSplit.Where(f => f != "").ToArray();
 
-                if (tokens[i].TokenValue is TokenValueOpenParenthesis)
-                    Assert.IsTrue(tokens[i].TokenValue == TokenValueOpenParenthesis.Instance, "Test get token: open parenthesis instance - " + test.Description);
+                    var regEx = @"[a-zA-Z\._]+|\(|\)|\+|\-";
 
-                if (tokens[i].TokenValue is TokenValueCloseParenthesis)
-                    Assert.IsTrue(tokens[i].TokenValue == TokenValueCloseParenthesis.Instance, "Test get token: close parenthesis instance - " + test.Description);
+                    // Testing debug
+                    string[] outputExpectedSplit = Regex.Matches(outputSplitRefs[iRef], regEx).Cast<Match>().Select(m => m.Value).ToArray();
+                    for (var iDebug = 0; iDebug < outputExpectedSplit.Length; iDebug++)
+                    {
+                        string[] debugSplit2 = Regex.Matches(debugSplit[iDebug], regEx).Cast<Match>().Select(m => m.Value).ToArray();
+                        Assert.IsTrue(outputExpectedSplit[iDebug] == debugSplit2[0], "Test debug: compare output ´- " + test.Description);
+                    }
+                }
+            }
+        }
 
-                // Trim() because the token plus coming with space " + "
-                Assert.IsTrue(outputExpectedSplit[i] == tokens[i].TokenValue.ToString().Trim(), "Test get token: compare ouput - " + test.Description);
+        private void ValidateTokens(TestExpression test, Dictionary<EDObject, TokenResult> tokensResult, string output)
+        {
+            var outputSplitCollection = output.Split(new string[] { delimiterCollection }, StringSplitOptions.None);
+            for (var i = 0; i < outputSplitCollection.Length; i++)
+            {
+                var outputSplitRefs = outputSplitCollection[i].Split(new string[] { delimiterReferences }, StringSplitOptions.None);
+                for (var iRef = 0; iRef < outputSplitRefs.Length; iRef++)
+                {
+                    var regEx = @"[a-zA-Z\._]+|\(|\)|\+|\-";
+                    var tokens = tokensResult.ElementAt(i).Value.Tokens.ElementAt(iRef).Value;
+
+                    // Testing debug
+                    string[] outputExpectedSplit = Regex.Matches(outputSplitRefs[iRef], regEx).Cast<Match>().Select(m => m.Value).ToArray();
+                    for (var iOut = 0; iOut < outputExpectedSplit.Length; iOut++)
+                    {
+                        if (tokens[iOut].TokenValue is TokenValuePlus)
+                            Assert.IsTrue(tokens[iOut].TokenValue == TokenValuePlus.Instance, "Test get token: plus instance - " + test.Description);
+
+                        if (tokens[iOut].TokenValue is TokenValueOpenParenthesis)
+                            Assert.IsTrue(tokens[iOut].TokenValue == TokenValueOpenParenthesis.Instance, "Test get token: open parenthesis instance - " + test.Description);
+
+                        if (tokens[iOut].TokenValue is TokenValueCloseParenthesis)
+                            Assert.IsTrue(tokens[iOut].TokenValue == TokenValueCloseParenthesis.Instance, "Test get token: close parenthesis instance - " + test.Description);
+
+                        // Trim() because the token plus coming with space " + "
+                        Assert.IsTrue(outputExpectedSplit[iOut] == tokens[iOut].TokenValue.ToString().Trim(), "Test get token: compare ouput - " + test.Description);
+                    }
+                }
             }
         }
     }

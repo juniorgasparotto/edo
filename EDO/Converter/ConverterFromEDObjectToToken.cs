@@ -4,155 +4,38 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Diagnostics;
-using EDO.Dispatcher;
 
-namespace EDO.Reader
+namespace EDO.Converter
 {
-    public enum TypeReader
-    {
-        Normal,
-        AwaysRepeatDefinedExpression,
-        NeverRepeatDefinedExpressionIfAlreadyParsed
-    }
-
     /// <summary>
-    /// Expression of dependence of objects (EDO) - Reader
+    /// Expression of dependence of objects (EDO) - Tokenize
     /// </summary>
-    public class EDOReader
+    public class ConverterFromEDObjectToToken : IConverterFromEDObjectToToken
     {
-        private EDObjectCollection objectCollection;
-        private EDObject obj;
-        public TypeReader Type { get; set; }
+        public TokenizeType Type { get; private set; }
 
-        public EDOReader(EDObjectCollection collection, TypeReader typeReading = TypeReader.Normal)
+        public ConverterFromEDObjectToToken(TokenizeType typeReading = TokenizeType.Normal)
         {
-            this.objectCollection = collection;
             this.Type = typeReading;
         }
 
-        public EDOReader(EDObject obj, TypeReader typeReading = TypeReader.Normal)
-        {
-            if (obj == null)
-                throw new Exception("Object 'object' can't be null'");
-
-            this.obj = obj;
-            this.Type = typeReading;
-        }
-
-        /// <summary>
-        /// Return a expression of a object
-        /// </summary>
-        /// <returns></returns>
-        public string ToExpression(bool includeReferences = false)
-        {
-            return ToExpression(this.obj, includeReferences);
-        }
-
-        public string ToExpression(EDObject edoObj, bool includeReferences = false)
-        {
-            StringBuilder strBuilder = new StringBuilder();
-            var tokenParsedBag = this.GetTokens(edoObj, includeReferences);
-            tokenParsedBag = this.InvertDictionary(tokenParsedBag);
-
-            foreach (var parsedToken in tokenParsedBag)
-                strBuilder.AppendLine(this.ToExpression(parsedToken.Value));
-
-            return TrimAll(strBuilder.ToString());
-        }
-
-        public string ToExpression(List<Token> tokens)
-        {
-            StringBuilder strBuilder = new StringBuilder();
-
-            foreach (var token in tokens)
-            {
-                if (token is TokenRecursive)
-                {
-                    strBuilder.Append(((EDObject)token.TokenValue.Value).Name);
-                }
-                else
-                {
-                    if (token.TokenValue is TokenValuePlus)
-                        strBuilder.Append(" + ");
-                    else if (token.TokenValue is TokenValueOpenParenthesis)
-                        strBuilder.Append("(");
-                    else if (token.TokenValue is TokenValueCloseParenthesis)
-                        strBuilder.Append(")");
-                    else
-                        strBuilder.Append(((EDObject)token.TokenValue.Value).Name);
-                }
-            }
-
-            return strBuilder.ToString();
-        }
-
-        public string Debug(bool includeReferences = false)
-        {
-            return Debug(this.obj, includeReferences);
-        }
-
-        public string Debug(EDObject edoObj, bool includeReferences = false)
-        {
-            StringBuilder strBuilder = new StringBuilder();
-            var tokenParsedBag = this.GetTokens(edoObj, includeReferences);
-            tokenParsedBag = this.InvertDictionary(tokenParsedBag);
-
-            foreach (var parsedToken in tokenParsedBag)
-            {
-                strBuilder.Append(this.Debug(parsedToken.Value));
-                strBuilder.AppendLine();
-            }
-
-            return TrimAll(strBuilder.ToString());
-        }
-
-        public string Debug(List<Token> tokens)
-        {
-            StringBuilder strBuilder = new StringBuilder();
-            foreach (var token in tokens)
-            {
-                var resParent = "";
-
-                if (token.Parent != null)
-                    resParent = string.Format(" parent: (hashcode: {0}; value: {1})", token.Parent.GetHashCode(), token.Parent.TokenValue.ToString());
-
-                strBuilder.Append(token.TokenValue.ToString().Trim());
-                strBuilder.Append(string.Format(" hashcode: {0}", token.GetHashCode()));
-                strBuilder.Append(resParent);
-                strBuilder.Append(" level: " + token.Level);
-                strBuilder.Append(" hashcodeValue: " + token.TokenValue.GetHashCode());
-                strBuilder.AppendLine();
-            }
-
-            return strBuilder.ToString();
-        }
-        
         #region Parse tokens
 
-        /// <summary>
-        /// Get all tokens that represent a expression from the object
-        /// </summary>
-        /// <param name="object"></param>
-        /// <returns>The list of the Token</returns>
-        public Dictionary<EDObject, List<Token>> GetTokens(bool includeReferences = false)
+        public Dictionary<EDObject, TokenResult> Convert(EDObjectCollection collection)
         {
-            return this.GetTokens(this.obj, includeReferences);
+            var res = new Dictionary<EDObject, TokenResult>();
+            foreach (var obj in collection)
+                res.Add(obj, this.Convert(obj));
+
+            return res;
         }
 
-        public Dictionary<EDObject, List<Token>> GetTokens(EDObject edoObj, bool includeReferences = false)
+        public TokenResult Convert(EDObject edoObj)
         {
-            // this validate occurs because don't make sense show a expression of a edoObj without your definitions
-            // the result will be for nothing
-            if (!includeReferences && Type == TypeReader.NeverRepeatDefinedExpressionIfAlreadyParsed)
-                throw new Exception("The parameter 'includeReference' can't be used with 'NeverRepeatDefinedExpressionIfAlreadyParsed'");
-
             Dictionary<EDObject, List<Token>> tokenParsedBag = new Dictionary<EDObject, List<Token>>();
             this.ParseToken(edoObj, null, tokenParsedBag);
-
-            if (!includeReferences)
-                tokenParsedBag = tokenParsedBag.Where(k => k.Key == edoObj).ToDictionary(k=>k.Key, v=>v.Value);
-
-            return tokenParsedBag;
+            tokenParsedBag = Helper.InvertDictionary(tokenParsedBag);
+            return new TokenResult(edoObj, tokenParsedBag);
         }
 
         /// <summary>
@@ -191,7 +74,7 @@ namespace EDO.Reader
                     // Verify if tokens already exists with the 'next' value
                     var exists = tokenParsedBag.ContainsKey(next) ? tokenParsedBag[next].FirstOrDefault(f => f.TokenValue.Value == next) : null;
 
-                    if (Type == TypeReader.NeverRepeatDefinedExpressionIfAlreadyParsed)
+                    if (Type == TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed)
                     {
                         if (exists != null)
                         {
@@ -206,7 +89,7 @@ namespace EDO.Reader
                     }
                     else
                     {
-                        if (exists != null && Type != TypeReader.AwaysRepeatDefinedExpression)
+                        if (exists != null && Type != TokenizeType.AwaysRepeatDefinedExpression)
                         {
                             tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                             tokenBag.Add(new Token(exists.TokenValue, newTokenCurrent, level));
@@ -289,24 +172,6 @@ namespace EDO.Reader
                 return new Token(exists.TokenValue, tokenParent, level);
 
             return new Token(new TokenValue(obj), tokenParent, level); ;
-        }
-
-        #endregion
-
-        #region Helpers
-
-        private string TrimAll(string str)
-        {
-            return str.Trim().TrimStart('\r', '\n').TrimEnd('\r', '\n');
-        }
-        private Dictionary<TKey, TValue> InvertDictionary<TKey, TValue>(Dictionary<TKey, TValue> dictionary)
-        {
-            var reverse = new Dictionary<TKey, TValue>();
-
-            for (var i = dictionary.Count - 1; i >= 0; i--)
-                reverse.Add(dictionary.Keys.ElementAt(i), dictionary.Values.ElementAt(i));
-
-            return reverse;
         }
 
         #endregion

@@ -10,21 +10,12 @@ namespace EDO.Tests
     public partial class TestExpression
     {
         public int Id { get; set; }
-
         public string Input { get; set; }
-
-        public string OutputAndNormal { get; set; }
-
-        public string OutputAndAwaysRepeatDefinedExpression { get; set; }
-
-        public string OutputIncludeRefAndAwaysRepeatDefinedExpression { get; set; }
-
-        public string OutputIncludeRefAndNormal { get; set; }
-
-        public string OutputIncludeRefAndNeverRepeatDefinedExpression { get; set; }
-
         public string ObjectMain { get; set; }
-
         public string Description { get; set; }
+        public string OutputNormal { get; set; }
+        public string OutputAwaysRepeatDefinedExpression { get; set; }
+        public string OutputNeverRepeatDefinedExpressionIfAlreadyParsed { get; set; }
+        public int HasUpdatedByCode { get; set; }
     }
 }

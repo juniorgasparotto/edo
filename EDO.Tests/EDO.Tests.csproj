@@ -64,6 +64,8 @@
   <ItemGroup>
     <Compile Include="DatabaseTests.cs" />
     <Compile Include="TestExpression.cs" />
+    <Compile Include="Tests\TestExpression2.cs" />
+    <Compile Include="Tests\Tests - Copy.cs" />
     <Compile Include="Tests\Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -81,6 +83,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DatabaseTests - Copy.mdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="DatabaseTests.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

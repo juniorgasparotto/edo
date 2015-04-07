@@ -50,12 +50,12 @@ namespace EDO
 
         public IEnumerator<EDObject> GetEnumerator()
         {
-            return (IEnumerator<EDObject>)objects;
+            return objects.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return (IEnumerator<EDObject>)objects;
+            return objects.GetEnumerator();
         }
     }
 }
