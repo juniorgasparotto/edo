@@ -11,4 +11,3 @@ D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\bin\Debug\EDO.dll
 D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\bin\Debug\EDO.pdb
 D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\obj\Debug\EDO.dll
 D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\obj\Debug\EDO.pdb
-D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO\obj\Debug\EDO.csprojResolveAssemblyReference.cache

@@ -12,14 +12,6 @@ namespace EDO
     {
         private List<EDObject> objects;
 
-        //public IEnumerable<EDObject> Objects
-        //{
-        //    get 
-        //    {
-        //        return (IEnumerable<EDObject>)objects;
-        //    }
-        //}
-
         public EDObjectCollection()
         {
             this.objects = new List<EDObject>();
@@ -57,5 +49,10 @@ namespace EDO
         {
             return objects.GetEnumerator();
         }
+
+        public void Reverse()
+        {
+            objects.Reverse();
+        } 
     }
 }

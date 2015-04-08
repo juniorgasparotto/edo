@@ -1,16 +1,19 @@
 ﻿ToDo
 
-testar create para EDObject, sem usar collection
-fazer o create levar em consideração expressão com delimitador para collection e edoobject
-tentar fazer o references ser um edoobjectcollection
-testes com projetos com o mesmo nome
+
 fazer o hiarquia
 fazer o hierquia inversa
+testes com projetos com o mesmo nome
+fazer objeto de outro tipo virar um edo
+tentar fazer o references ser um edoobjectcollection
+tentar fazer o teste FAILURE funcionar de acordo, pensar em mecanismo de sort ou algo assim
 
 criar outro tipo de printer (tipo json talvez, html)
+testar o "menos - " - ok
+fazer o create levar em consideração expressão com delimitador para collection - ok
 acertar o level - ok
 refatorar onde ira ficar o expression - ok
-
+testar create para EDObject, sem usar collection - não dá - ok
 
 
 framework Graph

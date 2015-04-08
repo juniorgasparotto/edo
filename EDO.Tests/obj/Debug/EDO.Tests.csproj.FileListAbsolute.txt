@@ -13,4 +13,3 @@ D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\EntityFra
 D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\obj\Debug\EDO.Tests.csprojResolveAssemblyReference.cache
 D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\obj\Debug\EDO.Tests.dll
 D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\obj\Debug\EDO.Tests.pdb
-D:\Junior\Projetos\GITHUB.COM\juniorgasparotto\EDO\EDO.Tests\bin\Debug\DatabaseTests - Copy.mdf

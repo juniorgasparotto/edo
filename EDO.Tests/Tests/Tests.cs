@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using EDO.Converter;
 using EDO.Tests;
-using EDO.Tests.Tests;
 
 namespace EDO.Unit
 {
@@ -27,32 +26,48 @@ namespace EDO.Unit
             this.testsExpressions = database.TestExpressions.ToList();
         }
 
-        public void UpdateByCode()
+        [TestMethod]
+        public void TestMinus()
         {
-            var tests = database.TestExpressions.Where(f=>f.HasUpdatedByCode != 1).ToList();
-            foreach (var test in tests)
-            {
-                var collection = CreateObjectCollection(test.Input);
-                var convertToToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
-                test.OutputNormal = (new ConverterFromTokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
+            var type = TokenizeType.Normal;
+            var convertToEdo = new ConverterFromExpressionToEDObject();
+            var converterToken = new ConverterFromEDObjectToToken(type);
 
-                var convertToToken2 = new ConverterFromEDObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
-                test.OutputAwaysRepeatDefinedExpression = (new ConverterFromTokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
+            var expressionInput = "A + (B + (C + D)) + (C - D)";
+            var collection = convertToEdo.Convert(expressionInput);
+            var tokensCollection = converterToken.Convert(collection);
 
-                var convertToToken3 = new ConverterFromEDObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
-                test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed = (new ConverterFromTokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
-                test.HasUpdatedByCode = 1;
-            }
+            //Test1
+            var edo = collection.GetObjectByName("A");
+            var expressionOutput = GetExpressionEdoObject(edo, type);
+            Assert.IsTrue(expressionOutput == "A + (B + C) + C", "Teste 1");
 
-            database.SaveChanges();
+            //Test2
+            convertToEdo.Convert(collection, "B-C");
+            expressionOutput = GetExpressionEdoObject(edo, type);
+            Assert.IsTrue(expressionOutput == "A + B + C", "Teste 2");
+
+            //Test3
+            convertToEdo.Convert(collection, "A+Y+Z+J; A-Y; ".Split(';'));
+            expressionOutput = GetExpressionEdoObject(edo, type);
+            Assert.IsTrue(expressionOutput == "A + B + C + Z + J", "Teste 3");
         }
 
-        public EDObjectCollection CreateObjectCollection(string exp)
+        [TestMethod]
+        public void TestMultiplesExpressionsFAILURE()
         {
-            var collection = new EDObjectCollection();
-            var writer = new ConverterFromExpressionToEDObject();
-            writer.Convert(exp, collection);
-            return collection;
+            var init = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
+            foreach (var test in testsExpressions)
+            {
+                var collection = CreateObjectCollectionSpliting(test.OutputNormal);
+                this.ValidateCenaries(test, collection);
+                collection = CreateObjectCollectionSpliting(test.OutputAwaysRepeatDefinedExpression);
+                this.ValidateCenaries(test, collection);
+                collection = CreateObjectCollectionSpliting(test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed);
+                this.ValidateCenaries(test, collection);
+            }
+
+            var end = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
         }
 
         [TestMethod]
@@ -152,9 +167,75 @@ namespace EDO.Unit
             {
                 var collection = CreateObjectCollection(test.Input);
                 this.ValidateCenaries(test, collection);
+                this.ValidateExpressionArray(test, TokenizeType.Normal, test.OutputNormal);
+                this.ValidateExpressionArray(test, TokenizeType.AwaysRepeatDefinedExpression, test.OutputAwaysRepeatDefinedExpression);
+                this.ValidateExpressionArray(test, TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed, test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed);
             }
 
             var end = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
+        }
+
+        #region Helpers
+
+        public void UpdateByCode()
+        {
+            var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 1).ToList();
+            foreach (var test in tests)
+            {
+                var collection = CreateObjectCollection(test.Input);
+                var convertToToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+                test.OutputNormal = (new ConverterFromTokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
+
+                var convertToToken2 = new ConverterFromEDObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
+                test.OutputAwaysRepeatDefinedExpression = (new ConverterFromTokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
+
+                var convertToToken3 = new ConverterFromEDObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
+                test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed = (new ConverterFromTokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
+                test.HasUpdatedByCode = 1;
+            }
+
+            database.SaveChanges();
+        }
+
+        public EDObjectCollection CreateObjectCollection(string exp)
+        {
+            var collection = new EDObjectCollection();
+            var writer = new ConverterFromExpressionToEDObject();
+            writer.Convert(collection, exp);
+            return collection;
+        }
+
+        public EDObjectCollection CreateObjectCollectionSpliting(string exp)
+        {
+            var converter = new ConverterFromExpressionToEDObject();
+            exp = exp.Replace(delimiterCollection, delimiterReferences);
+            var split = exp.Split(new string[] { delimiterReferences }, StringSplitOptions.None);
+            return converter.Convert(split);
+        }
+
+        public string GetExpressionEdoObject(EDObject edo, TokenizeType type)
+        {
+            var converterToken = new ConverterFromEDObjectToToken(type);
+            var tokens = converterToken.Convert(edo);
+            var converterExpression = new ConverterFromTokenToExpression();
+            return converterExpression.Convert(tokens.Tokens[edo]);
+        }
+
+        public void ValidateExpressionArray(TestExpression test, TokenizeType type, string strInputTest)
+        {
+            var converterToken = new ConverterFromEDObjectToToken(type);
+            var converterExpression = new ConverterFromTokenToExpression();
+
+            var collection = CreateObjectCollection(test.Input);
+            var tokensCollection = converterToken.Convert(collection);
+            var edoMain = collection.GetObjectByName(test.ObjectMain);
+            var expressionOutput = converterExpression.Convert(tokensCollection[edoMain].Tokens[edoMain]);
+
+            var collection2 = CreateObjectCollectionSpliting(strInputTest);
+            var edoMain2 = collection2.GetObjectByName(test.ObjectMain);
+            var tokensCollection2 = converterToken.Convert(collection2);
+            var expressionOutput2 = converterExpression.Convert(tokensCollection2[edoMain2].Tokens[edoMain2]);
+            Assert.IsTrue(expressionOutput == expressionOutput2, "Testing creation by array of string :" + test.Description);
         }
 
         public void ValidateCenaries(TestExpression test, EDObjectCollection collection)
@@ -257,5 +338,7 @@ namespace EDO.Unit
                 }
             }
         }
+
+        #endregion
     }
 }

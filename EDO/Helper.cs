@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EDO
 {
-    public static class Helper
+    internal static class Helper
     {
         public static string TrimAll(string str)
         {
