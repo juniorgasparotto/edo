@@ -27,11 +27,45 @@ namespace EDO.Unit
         }
 
         [TestMethod]
+        public void TestHierarchy()
+        {
+            var type = TokenizeType.Normal;
+            var expressionInput = "A + (B + (C + D)) + C";
+            var collection = CreateObjectCollection(expressionInput);
+            var converterToken = new EdoObjectToToken(type);
+            var tokenCollection = converterToken.Convert(collection);
+
+            var converterToDebug = new TokenToDebug();
+            var debug = converterToDebug.Convert(tokenCollection, delimiterCollection);
+
+            var converterHierarchy = new TokenToHierarchy();
+            var output = converterHierarchy.Convert(tokenCollection, delimiterCollection);
+        }
+
+        [TestMethod]
+        public void TestHierarchyInverse()
+        {
+            var type = TokenizeType.Normal;
+            var expressionInput = "A + (B + C) + (D+C) + (E+C)";
+            var collection = CreateObjectCollection(expressionInput);
+            var converterToken = new EdoObjectToToken(type);
+            var tokenCollection = converterToken.Convert(collection);
+
+            var converterToDebug = new TokenToDebug();
+            var debug = converterToDebug.Convert(tokenCollection, delimiterCollection);
+
+            var converterHierarchyInverse = new TokenToHierarchyInverse();
+            var output = converterHierarchyInverse.Convert(tokenCollection, delimiterCollection);
+            var output2 = converterHierarchyInverse.Convert(tokenCollection[collection.GetObjectByName("A")], delimiterCollection);
+            var output3 = converterHierarchyInverse.Convert(tokenCollection[collection.GetObjectByName("A")], collection.GetObjectByName("C"));
+        }
+
+        [TestMethod]
         public void TestMinus()
         {
             var type = TokenizeType.Normal;
-            var convertToEdo = new ConverterFromExpressionToEDObject();
-            var converterToken = new ConverterFromEDObjectToToken(type);
+            var convertToEdo = new ExpressionToEdoObject();
+            var converterToken = new EdoObjectToToken(type);
 
             var expressionInput = "A + (B + (C + D)) + (C - D)";
             var collection = convertToEdo.Convert(expressionInput);
@@ -75,7 +109,7 @@ namespace EDO.Unit
         {
             var expressionInput = "A + (B + (C + D)) + C";
             var collection = CreateObjectCollection(expressionInput);
-            var converterToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+            var converterToken = new EdoObjectToToken(TokenizeType.Normal);
             var tokenResult = converterToken.Convert(collection.GetObjectByName("A"));
             var tokens = tokenResult.Tokens[tokenResult.EdoObject];
 
@@ -145,8 +179,8 @@ namespace EDO.Unit
         {
             var expressionInput = "A + (B + (C + D)) + C";
             var collection = CreateObjectCollection(expressionInput);
-            var converterToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
-            var converterExpression = new ConverterFromTokenToExpression();
+            var converterToken = new EdoObjectToToken(TokenizeType.Normal);
+            var converterExpression = new TokenToExpression();
             var tokensCollection = converterToken.Convert(collection);
 
             var edoMain = collection.GetObjectByName("A");
@@ -183,14 +217,14 @@ namespace EDO.Unit
             foreach (var test in tests)
             {
                 var collection = CreateObjectCollection(test.Input);
-                var convertToToken = new ConverterFromEDObjectToToken(TokenizeType.Normal);
-                test.OutputNormal = (new ConverterFromTokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
+                var convertToToken = new EdoObjectToToken(TokenizeType.Normal);
+                test.OutputNormal = (new TokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
 
-                var convertToToken2 = new ConverterFromEDObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
-                test.OutputAwaysRepeatDefinedExpression = (new ConverterFromTokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
+                var convertToToken2 = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
+                test.OutputAwaysRepeatDefinedExpression = (new TokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
 
-                var convertToToken3 = new ConverterFromEDObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
-                test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed = (new ConverterFromTokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
+                var convertToToken3 = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
+                test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed = (new TokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
                 test.HasUpdatedByCode = 1;
             }
 
@@ -200,14 +234,14 @@ namespace EDO.Unit
         public EDObjectCollection CreateObjectCollection(string exp)
         {
             var collection = new EDObjectCollection();
-            var writer = new ConverterFromExpressionToEDObject();
+            var writer = new ExpressionToEdoObject();
             writer.Convert(collection, exp);
             return collection;
         }
 
         public EDObjectCollection CreateObjectCollectionSpliting(string exp)
         {
-            var converter = new ConverterFromExpressionToEDObject();
+            var converter = new ExpressionToEdoObject();
             exp = exp.Replace(delimiterCollection, delimiterReferences);
             var split = exp.Split(new string[] { delimiterReferences }, StringSplitOptions.None);
             return converter.Convert(split);
@@ -215,16 +249,16 @@ namespace EDO.Unit
 
         public string GetExpressionEdoObject(EDObject edo, TokenizeType type)
         {
-            var converterToken = new ConverterFromEDObjectToToken(type);
+            var converterToken = new EdoObjectToToken(type);
             var tokens = converterToken.Convert(edo);
-            var converterExpression = new ConverterFromTokenToExpression();
+            var converterExpression = new TokenToExpression();
             return converterExpression.Convert(tokens.Tokens[edo]);
         }
 
         public void ValidateExpressionArray(TestExpression test, TokenizeType type, string strInputTest)
         {
-            var converterToken = new ConverterFromEDObjectToToken(type);
-            var converterExpression = new ConverterFromTokenToExpression();
+            var converterToken = new EdoObjectToToken(type);
+            var converterExpression = new TokenToExpression();
 
             var collection = CreateObjectCollection(test.Input);
             var tokensCollection = converterToken.Convert(collection);
@@ -253,17 +287,17 @@ namespace EDO.Unit
             //output = output.Replace("+", " + ");
             //output = output.Replace("-", " - ");
 
-            var converterNormal = new ConverterFromEDObjectToToken(TokenizeType.Normal);
+            var converterNormal = new EdoObjectToToken(TokenizeType.Normal);
             var tokensNormal = converterNormal.Convert(collection);
-            var normal = (new ConverterFromTokenToExpression()).Convert(tokensNormal, delimiterCollection);
+            var normal = (new TokenToExpression()).Convert(tokensNormal, delimiterCollection);
 
-            var converterAwaysRepeat = new ConverterFromEDObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
+            var converterAwaysRepeat = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
             var tokensAwaysRepeat = converterAwaysRepeat.Convert(collection);
-            var awaysRepeat = (new ConverterFromTokenToExpression()).Convert(tokensAwaysRepeat, delimiterCollection);
+            var awaysRepeat = (new TokenToExpression()).Convert(tokensAwaysRepeat, delimiterCollection);
 
-            var converterNeverRepeat = new ConverterFromEDObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
+            var converterNeverRepeat = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
             var tokensNeverRepeat = converterNeverRepeat.Convert(collection);
-            var neverRepeat = (new ConverterFromTokenToExpression()).Convert(tokensNeverRepeat, delimiterCollection);
+            var neverRepeat = (new TokenToExpression()).Convert(tokensNeverRepeat, delimiterCollection);
 
             Assert.IsTrue(test.OutputNormal == normal, "Test expression: compare output normal - " + test.Description);
             this.ValidateDebug(test, tokensNormal, normal);
@@ -280,7 +314,7 @@ namespace EDO.Unit
 
         private void ValidateDebug(TestExpression test, Dictionary<EDObject, TokenResult> tokens, string output)
         {
-            var convert = new ConverterFromTokenToDebug();
+            var convert = new TokenToDebug();
             var delimiterDebugRef = "*******";
             var debug = convert.Convert(tokens, delimiterCollection, delimiterDebugRef);
 

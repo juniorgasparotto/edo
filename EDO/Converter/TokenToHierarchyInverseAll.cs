@@ -13,27 +13,38 @@ using EDO.Converter;
 
 namespace EDO.Converter
 {
-    public class ConverterFromTokenToDebug : IConverterFromTokenToString
+    public class TokenToHierarchyInverseAll : IConverterFromTokenToString
     {
         public string Convert(List<Token> tokens)
         {
             StringBuilder strBuilder = new StringBuilder();
-            foreach (var token in tokens)
+            Dictionary<EDObject, List<EDObject>> organizedChilds = new Dictionary<EDObject, List<EDObject>>();
+            strBuilder.AppendLine("Main: " + ((EDObject)tokens.FirstOrDefault().TokenValue.Value).Name);
+            var onlyValues = tokens.Where(f => f.TokenValue.Value is EDObject).ToList();
+            foreach (var token in onlyValues)
             {
-                var resParent = "";
+                var value = (EDObject)token.TokenValue.Value;
+                if (!organizedChilds.ContainsKey(value))
+                    organizedChilds.Add(value, new List<EDObject>());
 
                 if (token.Parent != null)
-                    resParent = string.Format(" parent: (hashcode: {0}; value: {1})", token.Parent.GetHashCode(), token.Parent.TokenValue.ToString());
+                    organizedChilds[value].Add((EDObject)token.Parent.TokenValue.Value);
+            }
 
-                strBuilder.Append(token.TokenValue.ToString().Trim());
-                strBuilder.Append(string.Format(" hashcode: {0}", token.GetHashCode()));
-                strBuilder.Append(resParent);
-                strBuilder.Append(" level: " + token.Level);
-                strBuilder.Append(" hashcodeValue: " + token.TokenValue.GetHashCode());
+
+            foreach (var child in organizedChilds)
+            {
+                if (child.Value.Count == 0)
+                    strBuilder.AppendLine("[any references for this]");
+                else
+                    foreach (var parent in child.Value)
+                        strBuilder.AppendLine(parent.Name);
+
+                strBuilder.Append("..." + child.Key.Name);
                 strBuilder.AppendLine();
             }
 
-            return strBuilder.ToString();
+            return Helper.TrimAll(strBuilder.ToString());
         }
 
         public string Convert(TokenResult tokenResult, string delimiterReferences = null)
@@ -41,11 +52,9 @@ namespace EDO.Converter
             delimiterReferences = string.IsNullOrEmpty(delimiterReferences) ? "\r\n" : delimiterReferences;
             var strBuilder = new StringBuilder();
             var last = tokenResult.Tokens.LastOrDefault();
-
-            foreach (var parsedToken in tokenResult.Tokens)
+            foreach (var parsedToken in tokenResult.Tokens) 
             { 
                 strBuilder.Append(this.Convert(parsedToken.Value));
-
                 if (parsedToken.GetHashCode() != last.GetHashCode())
                     strBuilder.Append(delimiterReferences);
             }
@@ -58,12 +67,15 @@ namespace EDO.Converter
             delimiterCollection = string.IsNullOrEmpty(delimiterCollection) ? "\r\n" : delimiterCollection;
             var strBuilder = new StringBuilder();
             var last = collection.LastOrDefault();
+
             foreach (var keyPair in collection)
             {
                 strBuilder.Append(this.Convert(keyPair.Value, delimiterReferences));
+
                 if (keyPair.GetHashCode() != last.GetHashCode())
                     strBuilder.Append(delimiterCollection);
             }
+
             return Helper.TrimAll(strBuilder.ToString());
         }
     }

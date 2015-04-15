@@ -48,21 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converter\EdoObjectToToken.cs" />
+    <Compile Include="Converter\ExpressionToEdoObject.cs" />
     <Compile Include="Converter\Interfaces\IConverterFromExpression.cs" />
     <Compile Include="Converter\Interfaces\IConverterFromEDObjectToToken.cs" />
+    <Compile Include="Converter\TokenToDebug.cs" />
+    <Compile Include="Converter\TokenToExpression.cs" />
+    <Compile Include="Converter\TokenToHierarchy.cs" />
+    <Compile Include="Converter\TokenToHierarchyInverse.cs" />
+    <Compile Include="Converter\TokenToHierarchyInverseAll.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Converter\ConverterFromTokenToDebug.cs" />
-    <Compile Include="Converter\ConverterFromTokenToExpression.cs" />
     <Compile Include="Converter\Interfaces\IConverterFromTokenToString.cs" />
     <Compile Include="TokenResult.cs" />
     <Compile Include="Tokens.cs" />
-    <Compile Include="Converter\ConverterFromEDObjectToToken.cs" />
     <Compile Include="EDObjectCollection.cs" />
     <Compile Include="ComplexParam.cs" />
     <Compile Include="EDObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TokenizeType.cs" />
-    <Compile Include="Converter\ConverterFromExpressionToEDObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ToDo.txt" />

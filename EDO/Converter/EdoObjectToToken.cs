@@ -10,11 +10,11 @@ namespace EDO.Converter
     /// <summary>
     /// Expression of dependence of objects (EDO) - Tokenize
     /// </summary>
-    public class ConverterFromEDObjectToToken : IConverterFromEDObjectToToken
+    public class EdoObjectToToken : IConverterFromEDObjectToToken
     {
         public TokenizeType Type { get; private set; }
 
-        public ConverterFromEDObjectToToken(TokenizeType typeReading = TokenizeType.Normal)
+        public EdoObjectToToken(TokenizeType typeReading = TokenizeType.Normal)
         {
             this.Type = typeReading;
         }

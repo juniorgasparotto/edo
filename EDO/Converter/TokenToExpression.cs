@@ -13,7 +13,7 @@ using EDO.Converter;
 
 namespace EDO.Converter
 {
-    public class ConverterFromTokenToExpression : IConverterFromTokenToString
+    public class TokenToExpression : IConverterFromTokenToString
     {
         public string Convert(List<Token> tokens)
         {

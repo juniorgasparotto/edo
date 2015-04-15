@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace EDO.Converter
 {
-    public class ConverterFromExpressionToEDObject : IConverterFromExpression
+    public class ExpressionToEdoObject : IConverterFromExpression
     {
         public EDObjectCollection Convert(params string[] expressions)
         {
