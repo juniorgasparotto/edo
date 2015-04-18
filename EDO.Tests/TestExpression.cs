@@ -14,8 +14,21 @@ namespace EDO.Tests
         public string ObjectMain { get; set; }
         public string Description { get; set; }
         public string OutputNormal { get; set; }
-        public string OutputAwaysRepeatDefinedExpression { get; set; }
-        public string OutputNeverRepeatDefinedExpressionIfAlreadyParsed { get; set; }
-        public int HasUpdatedByCode { get; set; }
+        public string OutputAwaysRepeatDefinedToken { get; set; }
+        public string OutputNeverRepeatDefinedTokenIfAlreadyParsed { get; set; }
+
+        public string OutputHierarchyNormal { get; set; }
+        public string OutputHierarchyAwaysRepeatDefinedToken { get; set; }
+        public string OutputHierarchyNeverRepeatDefinedTokenIfAlreadyParsed { get; set; }
+        
+        public string OutputHierarchyInverseNormal { get; set; }
+        public string OutputHierarchyInverseAwaysRepeatDefinedToken { get; set; }
+        public string OutputHierarchyInverseNeverRepeatDefinedTokenIfAlreadyParsed { get; set; }
+
+        public string OutputDebugNormal { get; set; }
+        public string OutputDebugAwaysRepeatDefinedToken { get; set; }
+        public string OutputDebugNeverRepeatDefinedTokenIfAlreadyParsed { get; set; }
+
+        public int? HasUpdatedByCode { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace EDO.Converter
             StringBuilder strBuilder = new StringBuilder();
             var repeat = 3;
             var charRepeat = ".";
-            var initLevel = tokens.First().Level;
+            var initLevel = tokens.FirstOrDefault().Level;
 
             foreach (var token in tokens)
             {

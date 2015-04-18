@@ -9,7 +9,7 @@ namespace EDO
     public enum TokenizeType
     {
         Normal,
-        AwaysRepeatDefinedExpression,
-        NeverRepeatDefinedExpressionIfAlreadyParsed
+        AwaysRepeatDefinedToken,
+        NeverRepeatDefinedTokenIfAlreadyParsed
     }
 }

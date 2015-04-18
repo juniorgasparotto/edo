@@ -74,12 +74,12 @@ namespace EDO.Converter
                     // Verify if tokens already exists with the 'next' value
                     var exists = tokenParsedBag.ContainsKey(next) ? tokenParsedBag[next].FirstOrDefault(f => f.TokenValue.Value == next) : null;
 
-                    if (Type == TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed)
+                    if (Type == TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed)
                     {
                         if (exists != null)
                         {
                             tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
-                            tokenBag.Add(new Token(exists.TokenValue, tokenParent, level));
+                            tokenBag.Add(new Token(exists.TokenValue, newTokenCurrent, level));
                         }
                         else
                         {
@@ -89,7 +89,7 @@ namespace EDO.Converter
                     }
                     else
                     {
-                        if (exists != null && Type != TokenizeType.AwaysRepeatDefinedExpression)
+                        if (exists != null && Type != TokenizeType.AwaysRepeatDefinedToken)
                         {
                             tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                             tokenBag.Add(new Token(exists.TokenValue, newTokenCurrent, level));
@@ -109,11 +109,17 @@ namespace EDO.Converter
                                 {
                                     tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                                     tokenBag.Add(CreateTokenOperand<TokenValueOpenParenthesis>(newTokenCurrent, level));
-                                    
-                                    if (!tokenParsedBag.ContainsKey(next))
-                                        this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
 
-                                    tokenBag.AddRange(tokenParsedBag[next]);
+                                    if (!tokenParsedBag.ContainsKey(next))
+                                    { 
+                                        this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
+                                        tokenBag.AddRange(tokenParsedBag[next]);
+                                    }
+                                    else
+                                    {
+                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
+                                    }
+
                                     tokenBag.Add(CreateTokenOperand<TokenValueCloseParenthesis>(newTokenCurrent, level));
                                 }
                                 else
@@ -121,9 +127,14 @@ namespace EDO.Converter
                                     tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                                     
                                     if (!tokenParsedBag.ContainsKey(next))
+                                    { 
                                         this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
-
-                                    tokenBag.AddRange(tokenParsedBag[next]);
+                                        tokenBag.AddRange(tokenParsedBag[next]);
+                                    }
+                                    else
+                                    {
+                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
+                                    }
                                 }
                             }
                         }
@@ -132,6 +143,36 @@ namespace EDO.Converter
             }
 
             return newTokenCurrent;
+        }
+
+        /// <summary>
+        /// Copy a list tokens has been parsed and changes yours values to respect a new token position.
+        /// </summary>
+        /// <param name="listToCopy"></param>
+        /// <param name="parent"></param>
+        /// <param name="levelStart"></param>
+        /// <returns></returns>
+        private List<Token> CopyParsedTokens(List<Token> listToCopy, Token parent, int levelStart)
+        {
+            var firstFrom = listToCopy.FirstOrDefault();
+            var firstTo = new Token(firstFrom.TokenValue, parent, levelStart);
+            var targetList = new List<Token>();
+            targetList.Add(firstTo);
+
+            foreach(var from in listToCopy.Skip(1))
+            {
+                // Set parent
+                var indexParent = listToCopy.IndexOf(from.Parent);
+                var parentToSet = targetList.ElementAt(indexParent);
+
+                // Set level progressesly relative by level start
+                var levelToSet = (from.Level - firstFrom.Level) + levelStart;
+
+                // Add in list
+                targetList.Add(new Token(from.TokenValue, parentToSet, levelToSet));
+            }
+
+            return targetList;
         }
 
         /// <summary>

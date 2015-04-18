@@ -95,9 +95,9 @@ namespace EDO.Unit
             {
                 var collection = CreateObjectCollectionSpliting(test.OutputNormal);
                 this.ValidateCenaries(test, collection);
-                collection = CreateObjectCollectionSpliting(test.OutputAwaysRepeatDefinedExpression);
+                collection = CreateObjectCollectionSpliting(test.OutputAwaysRepeatDefinedToken);
                 this.ValidateCenaries(test, collection);
-                collection = CreateObjectCollectionSpliting(test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed);
+                collection = CreateObjectCollectionSpliting(test.OutputNeverRepeatDefinedTokenIfAlreadyParsed);
                 this.ValidateCenaries(test, collection);
             }
 
@@ -202,8 +202,8 @@ namespace EDO.Unit
                 var collection = CreateObjectCollection(test.Input);
                 this.ValidateCenaries(test, collection);
                 this.ValidateExpressionArray(test, TokenizeType.Normal, test.OutputNormal);
-                this.ValidateExpressionArray(test, TokenizeType.AwaysRepeatDefinedExpression, test.OutputAwaysRepeatDefinedExpression);
-                this.ValidateExpressionArray(test, TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed, test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed);
+                this.ValidateExpressionArray(test, TokenizeType.AwaysRepeatDefinedToken, test.OutputAwaysRepeatDefinedToken);
+                this.ValidateExpressionArray(test, TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed, test.OutputNeverRepeatDefinedTokenIfAlreadyParsed);
             }
 
             var end = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
@@ -213,18 +213,31 @@ namespace EDO.Unit
 
         public void UpdateByCode()
         {
-            var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 1).ToList();
+            var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 2333331).ToList();
             foreach (var test in tests)
             {
                 var collection = CreateObjectCollection(test.Input);
                 var convertToToken = new EdoObjectToToken(TokenizeType.Normal);
                 test.OutputNormal = (new TokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
 
-                var convertToToken2 = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
-                test.OutputAwaysRepeatDefinedExpression = (new TokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
+                var convertToToken2 = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken);
+                test.OutputAwaysRepeatDefinedToken = (new TokenToExpression()).Convert(convertToToken2.Convert(collection), delimiterCollection);
 
-                var convertToToken3 = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
-                test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed = (new TokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
+                var convertToToken3 = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
+                test.OutputNeverRepeatDefinedTokenIfAlreadyParsed = (new TokenToExpression()).Convert(convertToToken3.Convert(collection), delimiterCollection);
+
+                test.OutputHierarchyNormal = new TokenToHierarchy().Convert(new EdoObjectToToken(TokenizeType.Normal).Convert(collection), delimiterCollection);
+                test.OutputHierarchyAwaysRepeatDefinedToken = new TokenToHierarchy().Convert(new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(collection), delimiterCollection);
+                test.OutputHierarchyNeverRepeatDefinedTokenIfAlreadyParsed = (new TokenToHierarchy()).Convert(new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(collection), delimiterCollection);
+
+                test.OutputHierarchyInverseNormal = new TokenToHierarchyInverse().Convert(new EdoObjectToToken(TokenizeType.Normal).Convert(collection), delimiterCollection);
+                test.OutputHierarchyInverseAwaysRepeatDefinedToken = new TokenToHierarchyInverse().Convert(new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(collection), delimiterCollection);
+                test.OutputHierarchyInverseNeverRepeatDefinedTokenIfAlreadyParsed = new TokenToHierarchyInverse().Convert(new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(collection), delimiterCollection);
+
+                test.OutputDebugNormal = new TokenToDebug().Convert(new EdoObjectToToken(TokenizeType.Normal).Convert(collection), delimiterCollection);
+                test.OutputDebugAwaysRepeatDefinedToken = new TokenToDebug().Convert(new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(collection), delimiterCollection);
+                test.OutputDebugNeverRepeatDefinedTokenIfAlreadyParsed = new TokenToDebug().Convert(new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(collection), delimiterCollection);
+                
                 test.HasUpdatedByCode = 1;
             }
 
@@ -277,10 +290,10 @@ namespace EDO.Unit
             if (string.IsNullOrWhiteSpace(test.OutputNormal))
                 throw new Exception("Output is null");
 
-            if (string.IsNullOrWhiteSpace(test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed))
+            if (string.IsNullOrWhiteSpace(test.OutputNeverRepeatDefinedTokenIfAlreadyParsed))
                 throw new Exception("OutputNeverRepeatDefinedExpressionIfAlreadyParsed is null");
 
-            if (string.IsNullOrWhiteSpace(test.OutputAwaysRepeatDefinedExpression))
+            if (string.IsNullOrWhiteSpace(test.OutputAwaysRepeatDefinedToken))
                 throw new Exception("OutputAwaysRepeatDefinedExpression is null");
 
             //output = output.Replace(" ", "");
@@ -291,11 +304,11 @@ namespace EDO.Unit
             var tokensNormal = converterNormal.Convert(collection);
             var normal = (new TokenToExpression()).Convert(tokensNormal, delimiterCollection);
 
-            var converterAwaysRepeat = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedExpression);
+            var converterAwaysRepeat = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken);
             var tokensAwaysRepeat = converterAwaysRepeat.Convert(collection);
             var awaysRepeat = (new TokenToExpression()).Convert(tokensAwaysRepeat, delimiterCollection);
 
-            var converterNeverRepeat = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedExpressionIfAlreadyParsed);
+            var converterNeverRepeat = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
             var tokensNeverRepeat = converterNeverRepeat.Convert(collection);
             var neverRepeat = (new TokenToExpression()).Convert(tokensNeverRepeat, delimiterCollection);
 
@@ -303,11 +316,11 @@ namespace EDO.Unit
             this.ValidateDebug(test, tokensNormal, normal);
             this.ValidateTokens(test, tokensNormal, normal);
 
-            Assert.IsTrue(test.OutputAwaysRepeatDefinedExpression == awaysRepeat, "Test expression: compare output aways repeat - " + test.Description);
+            Assert.IsTrue(test.OutputAwaysRepeatDefinedToken == awaysRepeat, "Test expression: compare output aways repeat - " + test.Description);
             this.ValidateDebug(test, tokensAwaysRepeat, awaysRepeat);
             this.ValidateTokens(test, tokensAwaysRepeat, awaysRepeat);
 
-            Assert.IsTrue(test.OutputNeverRepeatDefinedExpressionIfAlreadyParsed == neverRepeat, "Test expression: compare output never repeat - " + test.Description);
+            Assert.IsTrue(test.OutputNeverRepeatDefinedTokenIfAlreadyParsed == neverRepeat, "Test expression: compare output never repeat - " + test.Description);
             this.ValidateDebug(test, tokensNeverRepeat, neverRepeat);
             this.ValidateTokens(test, tokensNeverRepeat, neverRepeat);
         }
