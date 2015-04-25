@@ -21,6 +21,11 @@ namespace EDO.Unit
         [TestInitialize]
         public void Setup()
         {
+            string executable = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string path = (System.IO.Path.GetDirectoryName(executable));
+            path = Path.GetFullPath(Path.Combine(path, "../../"));
+            AppDomain.CurrentDomain.SetData("DataDirectory", path);
+
             this.database = new DatabaseTests();
             this.UpdateByCode();
             this.testsExpressions = database.TestExpressions.ToList();
@@ -217,7 +222,10 @@ namespace EDO.Unit
             foreach (var test in tests)
             {
                 var collection = CreateObjectCollection(test.Input);
+                
                 var convertToToken = new EdoObjectToToken(TokenizeType.Normal);
+                var test2 = new TokenOrganizer().Organize(convertToToken.Convert(collection));
+
                 test.OutputNormal = (new TokenToExpression()).Convert(convertToToken.Convert(collection), delimiterCollection);
 
                 var convertToToken2 = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken);

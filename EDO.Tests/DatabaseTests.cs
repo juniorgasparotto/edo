@@ -8,7 +8,7 @@ namespace EDO.Tests
     public partial class DatabaseTests : DbContext
     {
         public DatabaseTests()
-            : base("name=DatabaseTests")
+            : base("name=DatabaseTestsAttached")
         {
         }
 

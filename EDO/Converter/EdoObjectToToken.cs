@@ -34,7 +34,7 @@ namespace EDO.Converter
         {
             Dictionary<EDObject, List<Token>> tokenParsedBag = new Dictionary<EDObject, List<Token>>();
             this.ParseToken(edoObj, null, tokenParsedBag);
-            tokenParsedBag = Helper.InvertDictionary(tokenParsedBag);
+            //tokenParsedBag = Helper.InvertDictionary(tokenParsedBag);
             return new TokenResult(edoObj, tokenParsedBag);
         }
 
@@ -84,12 +84,13 @@ namespace EDO.Converter
                         else
                         {
                             tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
-                            tokenBag.Add(this.ParseToken(next, newTokenCurrent, tokenParsedBag, level));
+                            var tokenNext = this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
+                            tokenBag.Add(new Token(tokenNext.TokenValue, newTokenCurrent, level));
                         }
                     }
                     else
                     {
-                        if (exists != null && Type != TokenizeType.AwaysRepeatDefinedToken)
+                        if (exists != null && Type == TokenizeType.Normal)
                         {
                             tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                             tokenBag.Add(new Token(exists.TokenValue, newTokenCurrent, level));
@@ -113,7 +114,7 @@ namespace EDO.Converter
                                     if (!tokenParsedBag.ContainsKey(next))
                                     { 
                                         this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
-                                        tokenBag.AddRange(tokenParsedBag[next]);
+                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
                                     }
                                     else
                                     {
@@ -129,7 +130,7 @@ namespace EDO.Converter
                                     if (!tokenParsedBag.ContainsKey(next))
                                     { 
                                         this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
-                                        tokenBag.AddRange(tokenParsedBag[next]);
+                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
                                     }
                                     else
                                     {

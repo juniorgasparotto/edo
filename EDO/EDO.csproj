@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converter\EdoObjectToToken2.cs" />
     <Compile Include="Converter\EdoObjectToToken.cs" />
     <Compile Include="Converter\ExpressionToEdoObject.cs" />
     <Compile Include="Converter\Interfaces\IConverterFromExpression.cs" />
@@ -55,10 +56,13 @@
     <Compile Include="Converter\TokenToDebug.cs" />
     <Compile Include="Converter\TokenToExpression.cs" />
     <Compile Include="Converter\TokenToHierarchy.cs" />
+    <Compile Include="RecursiveExtensions.cs" />
+    <Compile Include="TokenOrganizer.cs" />
     <Compile Include="Converter\TokenToHierarchyInverse.cs" />
     <Compile Include="Converter\TokenToHierarchyInverseAll.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Converter\Interfaces\IConverterFromTokenToString.cs" />
+    <Compile Include="TokenResult2.cs" />
     <Compile Include="TokenResult.cs" />
     <Compile Include="Tokens.cs" />
     <Compile Include="EDObjectCollection.cs" />
