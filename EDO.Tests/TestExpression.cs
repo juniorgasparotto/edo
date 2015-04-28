@@ -30,5 +30,6 @@ namespace EDO.Tests
         public string OutputDebugNeverRepeatDefinedTokenIfAlreadyParsed { get; set; }
 
         public int? HasUpdatedByCode { get; set; }
+        public int? OnlyMainTokens { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using System.Collections;
 
 namespace EDO
 {
-    public class TokenGroupCollection : IEnumerable
+    public class TokenGroupCollection : IEnumerable<TokenGroup>
     {
         private List<TokenGroup> results = new List<TokenGroup>();
 
@@ -25,15 +25,20 @@ namespace EDO
             this.results.Add(item);
         }
 
-        public IEnumerator GetEnumerator()
+        public IEnumerator<TokenGroup> GetEnumerator()
+        {
+            return results.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return results.GetEnumerator();
         }
     }
 
-    public class TokenGroup
+    public class TokenGroup : IEnumerable<List<Token>>
     {
-        private Dictionary<EDObject, List<Token>> tokenGroup;
+        private readonly Dictionary<EDObject, List<Token>> tokenGroup;
 
         public EDObject MainEdoObject
         {
@@ -41,25 +46,26 @@ namespace EDO
             private set; 
         }
 
-        public IEnumerable<Token> MainTokens
+        public List<Token> MainTokens
         {
             get
             {
-                return this[MainEdoObject];
+                return this[MainEdoObject].ToList();
             }
         }
 
-        public IEnumerable<Token> this[EDObject edo]
+        public List<Token> this[EDObject edo]
         {
             get
             {
-                return tokenGroup[edo].AsEnumerable();
+                return tokenGroup[edo].ToList();
             }
         }
 
         public TokenGroup(EDObject edoObject)
         {
             this.MainEdoObject = edoObject;
+            this.tokenGroup = new Dictionary<EDObject, List<Token>>();
         }
 
         public void Add(EDObject addIn, List<Token> listToAdd)
@@ -76,7 +82,7 @@ namespace EDO
         {
             return this.tokenGroup.ContainsKey(edoVerify);
         }
-
+        
         private List<Token> GetListOrNew(EDObject edoToAdd)
         {
             List<Token> exists;
@@ -91,6 +97,16 @@ namespace EDO
             }
 
             return exists;
+        }
+
+        public IEnumerator<List<Token>> GetEnumerator()
+        {
+            return this.tokenGroup.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.tokenGroup.Values.GetEnumerator();
         }
     }
 }

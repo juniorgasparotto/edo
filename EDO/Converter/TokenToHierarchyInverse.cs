@@ -15,47 +15,24 @@ namespace EDO.Converter
 {
     public class TokenToHierarchyInverse
     {
-        public string Convert(TokenResult tokenResult, EDObject onlyThis)
+        private string delimiterMainTokens;
+
+        public TokenToHierarchyInverse(string delimiterMainTokens = null)
         {
-            if (onlyThis == null) throw new NullReferenceException("Parameter 'onlyThis' can't be null");
-            return this.Convert(tokenResult, null, onlyThis);
+            delimiterMainTokens = string.IsNullOrEmpty(delimiterMainTokens) ? "\r\n" : delimiterMainTokens;
+            this.delimiterMainTokens = delimiterMainTokens;
         }
-
-        public string Convert(Dictionary<EDObject, TokenResult> collection, EDObject onlyThis)
-        {
-            if (onlyThis == null) throw new NullReferenceException("Parameter 'onlyThis' can't be null");
-            return this.Convert(collection, null, onlyThis);
-        }
-
-        public string Convert(TokenResult tokenResult, string delimiter)
-        {
-            return this.Convert(tokenResult, delimiter, null);
-        }
-
-        public string Convert(Dictionary<EDObject, TokenResult> collection, string delimiter)
-        {
-            return this.Convert(collection, delimiter, null);
-        }
-
-        private string Convert(TokenResult tokenResult, string delimiter, EDObject onlyThis)
-        {
-            var organizedChilds = new Dictionary<EDObject, List<EDObject>>();
-            foreach (var tokens in tokenResult.Tokens)
-                this.OrganizeChildrensAndParents(tokens.Value, organizedChilds, onlyThis);
-
-            return this.GetString(organizedChilds, delimiter);
-        }
-
-        private string Convert(Dictionary<EDObject, TokenResult> collection, string delimiter, EDObject onlyThis)
+        
+        public string Convert(TokenGroupCollection collection, EDObject edoObject = null)
         {
             var organizedChilds = new Dictionary<EDObject, List<EDObject>>();
             foreach (var keyPair in collection)
             {
-                foreach (var tokenResult in keyPair.Value.Tokens)
-                    this.OrganizeChildrensAndParents(tokenResult.Value, organizedChilds, onlyThis);
+                foreach (var tokenResult in keyPair)
+                    this.OrganizeChildrensAndParents(tokenResult, organizedChilds, edoObject);
             }
 
-            return this.GetString(organizedChilds, delimiter);
+            return this.GetString(organizedChilds);
         }
 
         private void OrganizeChildrensAndParents(List<Token> tokens, Dictionary<EDObject, List<EDObject>> organizedChilds, EDObject onlyThis)
@@ -75,15 +52,10 @@ namespace EDO.Converter
                 if (parent != null && !organizedChilds[value].Contains(parent))
                     organizedChilds[value].Add(parent);
             }
-
-            //if (onlyThis != null)
-            //    organizedChilds = organizedChilds.Where(f => f.Key == onlyThis).ToDictionary(k => k.Key, v => v.Value);
         }
 
-        private string GetString(Dictionary<EDObject, List<EDObject>> organizedChilds, string delimiter)
+        private string GetString(Dictionary<EDObject, List<EDObject>> organizedChilds)
         {
-            delimiter = string.IsNullOrEmpty(delimiter) ? "\r\n" : delimiter;
-            
             StringBuilder strBuilder = new StringBuilder();
             var last = organizedChilds.LastOrDefault();
             foreach (var child in organizedChilds)
@@ -96,7 +68,7 @@ namespace EDO.Converter
 
                 strBuilder.Append("..." + child.Key.Name);
                 if (child.GetHashCode() != last.GetHashCode())
-                    strBuilder.Append(delimiter);
+                    strBuilder.Append(delimiterMainTokens);
             }
 
             return Helper.TrimAll(strBuilder.ToString());

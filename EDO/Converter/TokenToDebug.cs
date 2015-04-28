@@ -13,9 +13,14 @@ using EDO.Converter;
 
 namespace EDO.Converter
 {
-    public class TokenToDebug : IConverterFromTokenToString
+    public class TokenToDebug : TokenToString
     {
-        public string Convert(List<Token> tokens)
+        public TokenToDebug(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
+            : base(ignoreSubTokensOfMainTokens, delimiterMainTokens, delimiterSubTokensOfMainTokens)
+        {
+        }
+
+        public override string Convert(List<Token> tokens)
         {
             StringBuilder strBuilder = new StringBuilder();
             foreach (var token in tokens)
@@ -34,37 +39,6 @@ namespace EDO.Converter
             }
 
             return strBuilder.ToString();
-        }
-
-        public string Convert(TokenResult tokenResult, string delimiterReferences = null)
-        {
-            delimiterReferences = string.IsNullOrEmpty(delimiterReferences) ? "\r\n" : delimiterReferences;
-            var strBuilder = new StringBuilder();
-            var last = tokenResult.Tokens.LastOrDefault();
-
-            foreach (var parsedToken in tokenResult.Tokens)
-            { 
-                strBuilder.Append(this.Convert(parsedToken.Value));
-
-                if (parsedToken.GetHashCode() != last.GetHashCode())
-                    strBuilder.Append(delimiterReferences);
-            }
-
-            return Helper.TrimAll(strBuilder.ToString());
-        }
-
-        public string Convert(Dictionary<EDObject, TokenResult> collection, string delimiterCollection = null, string delimiterReferences = null)
-        {
-            delimiterCollection = string.IsNullOrEmpty(delimiterCollection) ? "\r\n" : delimiterCollection;
-            var strBuilder = new StringBuilder();
-            var last = collection.LastOrDefault();
-            foreach (var keyPair in collection)
-            {
-                strBuilder.Append(this.Convert(keyPair.Value, delimiterReferences));
-                if (keyPair.GetHashCode() != last.GetHashCode())
-                    strBuilder.Append(delimiterCollection);
-            }
-            return Helper.TrimAll(strBuilder.ToString());
         }
     }
 }

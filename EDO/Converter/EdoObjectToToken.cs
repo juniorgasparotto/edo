@@ -10,7 +10,7 @@ namespace EDO.Converter
     /// <summary>
     /// Expression of dependence of objects (EDO) - Tokenize
     /// </summary>
-    public class EdoObjectToToken : IConverterFromEDObjectToToken
+    public class EdoObjectToToken
     {
         public TokenizeType Type { get; private set; }
 
@@ -21,21 +21,35 @@ namespace EDO.Converter
 
         #region Parse tokens
 
-        public Dictionary<EDObject, TokenResult> Convert(EDObjectCollection collection)
+        public TokenGroupCollection Convert(EDObjectCollection collection)
         {
-            var res = new Dictionary<EDObject, TokenResult>();
+            var res = new TokenGroupCollection();
             foreach (var obj in collection)
-                res.Add(obj, this.Convert(obj));
+                res.Add(this.GetToGroup(obj));
 
             return res;
         }
 
-        public TokenResult Convert(EDObject edoObj)
+        public TokenGroupCollection Convert(EDObject edoObj)
         {
-            Dictionary<EDObject, List<Token>> tokenParsedBag = new Dictionary<EDObject, List<Token>>();
+            // Convert
+            var list = new List<EDObject>();
+            list.Add(edoObj);
+            list.AddRange(edoObj.References.Traverse(f => f.References));
+
+            var res = new TokenGroupCollection();
+            foreach (var obj in list)
+                res.Add(this.GetToGroup(obj));
+            
+            return res;
+        }
+
+        private TokenGroup GetToGroup(EDObject edoObj)
+        {
+            var tokenParsedBag = new TokenGroup(edoObj);
             this.ParseToken(edoObj, null, tokenParsedBag);
             //tokenParsedBag = Helper.InvertDictionary(tokenParsedBag);
-            return new TokenResult(edoObj, tokenParsedBag);
+            return tokenParsedBag;
         }
 
         /// <summary>
@@ -46,24 +60,10 @@ namespace EDO.Converter
         /// <param name="tokenBag">This object is used exclusive in recursive action. This is fill in recursive process</param>
         /// <param name="level">The object is used exclusive in recursive process</param>
         /// <returns>Return a Token instance that represent a Object instance</returns>
-        private Token ParseToken(EDObject edoObj, Token tokenParent = null, Dictionary<EDObject, List<Token>> tokenParsedBag = null, int level = 1)
-        {
-            if (tokenParsedBag == null)
-                tokenParsedBag = new Dictionary<EDObject, List<Token>>();
-
-            List<Token> tokenBag;
-            if (!tokenParsedBag.ContainsKey(edoObj))
-            {
-                tokenBag = new List<Token>();
-                tokenParsedBag[edoObj] = tokenBag;
-            }
-            else
-            {
-                tokenBag = tokenParsedBag[edoObj];
-            }
-
+        private Token ParseToken(EDObject edoObj, Token tokenParent = null, TokenGroup tokenParsedBag = null, int level = 1)
+        {            
             Token newTokenCurrent = GetOrCreateTokenObject(edoObj, tokenParent, tokenParsedBag, level);
-            tokenBag.Add(newTokenCurrent);
+            tokenParsedBag.Add(edoObj, newTokenCurrent);
 
             if (edoObj.References.Count > 0)
             {
@@ -72,28 +72,28 @@ namespace EDO.Converter
                 foreach (var next in edoObj.References)
                 {
                     // Verify if tokens already exists with the 'next' value
-                    var exists = tokenParsedBag.ContainsKey(next) ? tokenParsedBag[next].FirstOrDefault(f => f.TokenValue.Value == next) : null;
+                    var exists = tokenParsedBag.ExistsGroup(next) ? tokenParsedBag[next].FirstOrDefault(f => f.TokenValue.Value == next) : null;
 
                     if (Type == TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed)
                     {
                         if (exists != null)
                         {
-                            tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
-                            tokenBag.Add(new Token(exists.TokenValue, newTokenCurrent, level));
+                            tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
+                            tokenParsedBag.Add(edoObj, new Token(exists.TokenValue, newTokenCurrent, level));
                         }
                         else
                         {
-                            tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
+                            tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                             var tokenNext = this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
-                            tokenBag.Add(new Token(tokenNext.TokenValue, newTokenCurrent, level));
+                            tokenParsedBag.Add(edoObj, new Token(tokenNext.TokenValue, newTokenCurrent, level));
                         }
                     }
                     else
                     {
                         if (exists != null && Type == TokenizeType.Normal)
                         {
-                            tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
-                            tokenBag.Add(new Token(exists.TokenValue, newTokenCurrent, level));
+                            tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
+                            tokenParsedBag.Add(edoObj, new Token(exists.TokenValue, newTokenCurrent, level));
                         }
                         else
                         {
@@ -101,40 +101,40 @@ namespace EDO.Converter
                             // but is fixes for prevent a infinite call
                             if (exists != null && next.HasDirectOrIndirectReference(next))
                             {
-                                tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
-                                tokenBag.Add(new TokenRecursive(exists.TokenValue, newTokenCurrent, level));
+                                tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
+                                tokenParsedBag.Add(edoObj, new TokenRecursive(exists.TokenValue, newTokenCurrent, level));
                             }
                             else
                             {
                                 if (next.References.Count > 0)
                                 {
-                                    tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
-                                    tokenBag.Add(CreateTokenOperand<TokenValueOpenParenthesis>(newTokenCurrent, level));
+                                    tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
+                                    tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValueOpenParenthesis>(newTokenCurrent, level));
 
-                                    if (!tokenParsedBag.ContainsKey(next))
+                                    if (exists == null)
                                     { 
                                         this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
-                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
+                                        tokenParsedBag.Add(edoObj, this.CopyParsedTokens(tokenParsedBag[next].ToList(), newTokenCurrent, level));
                                     }
                                     else
                                     {
-                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
+                                        tokenParsedBag.Add(edoObj, this.CopyParsedTokens(tokenParsedBag[next].ToList(), newTokenCurrent, level));
                                     }
 
-                                    tokenBag.Add(CreateTokenOperand<TokenValueCloseParenthesis>(newTokenCurrent, level));
+                                    tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValueCloseParenthesis>(newTokenCurrent, level));
                                 }
                                 else
                                 {
-                                    tokenBag.Add(CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
+                                    tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                                     
-                                    if (!tokenParsedBag.ContainsKey(next))
+                                    if (!tokenParsedBag.ExistsGroup(next))
                                     { 
                                         this.ParseToken(next, newTokenCurrent, tokenParsedBag, level);
-                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
+                                        tokenParsedBag.Add(edoObj, this.CopyParsedTokens(tokenParsedBag[next].ToList(), newTokenCurrent, level));
                                     }
                                     else
                                     {
-                                        tokenBag.AddRange(this.CopyParsedTokens(tokenParsedBag[next], newTokenCurrent, level));
+                                        tokenParsedBag.Add(edoObj, this.CopyParsedTokens(tokenParsedBag[next].ToList(), newTokenCurrent, level));
                                     }
                                 }
                             }
@@ -207,9 +207,9 @@ namespace EDO.Converter
         /// <param name="tokenBag">The token list to help a verify if object already exists and to find a parent token</param>
         /// <param name="level">The level in expression</param>
         /// <returns>Return a new Token of type T</returns>
-        private Token GetOrCreateTokenObject(EDObject obj, Token tokenParent, Dictionary<EDObject, List<Token>> tokenBag, int level)
+        private Token GetOrCreateTokenObject(EDObject obj, Token tokenParent, TokenGroup tokenBag, int level)
         {
-            Token exists = tokenBag.ContainsKey(obj) ? tokenBag[obj].FirstOrDefault(f => f.TokenValue.Value == obj) : null;
+            Token exists = tokenBag.ExistsGroup(obj) ? tokenBag[obj].FirstOrDefault(f => f.TokenValue.Value == obj) : null;
             if (exists != null)
                 return new Token(exists.TokenValue, tokenParent, level);
 

@@ -13,9 +13,14 @@ using EDO.Converter;
 
 namespace EDO.Converter
 {
-    public class TokenToHierarchy : IConverterFromTokenToString
+    public class TokenToHierarchy : TokenToString
     {
-        public string Convert(List<Token> tokens)
+        public TokenToHierarchy(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
+            : base(ignoreSubTokensOfMainTokens, delimiterMainTokens, delimiterSubTokensOfMainTokens)
+        {
+        }
+
+        public override string Convert(List<Token> tokens)
         {
             StringBuilder strBuilder = new StringBuilder();
             var repeat = 3;
@@ -45,88 +50,5 @@ namespace EDO.Converter
 
             return strBuilder.ToString();
         }
-
-        public string Convert(TokenResult tokenResult, string delimiterReferences = null)
-        {
-            delimiterReferences = string.IsNullOrEmpty(delimiterReferences) ? "\r\n\r\n" : delimiterReferences;
-            var strBuilder = new StringBuilder();
-            var last = tokenResult.Tokens.LastOrDefault();
-            foreach (var parsedToken in tokenResult.Tokens) 
-            { 
-                strBuilder.Append(this.Convert(parsedToken.Value));
-                if (parsedToken.GetHashCode() != last.GetHashCode())
-                    strBuilder.Append(delimiterReferences);
-            }
-
-            return Helper.TrimAll(strBuilder.ToString());
-        }
-
-        public string Convert(Dictionary<EDObject, TokenResult> collection, string delimiterCollection = null, string delimiterReferences = null)
-        {
-            delimiterCollection = string.IsNullOrEmpty(delimiterCollection) ? "\r\n" : delimiterCollection;
-            var strBuilder = new StringBuilder();
-            var last = collection.LastOrDefault();
-
-            foreach (var keyPair in collection)
-            {
-                strBuilder.Append(this.Convert(keyPair.Value, delimiterReferences));
-
-                if (keyPair.GetHashCode() != last.GetHashCode())
-                    strBuilder.Append(delimiterCollection);
-            }
-
-            return Helper.TrimAll(strBuilder.ToString());
-        }
-        /*
-
-        public string ToStringHierarchy(bool showFullTree = false)
-        {
-            var strBuilder = new StringBuilder();
-            var loadeds = new List<string>();
-            ToStringHierarchy(this, strBuilder, showFullTree, loadeds);
-            strBuilder.AppendLine();
-
-            //strBuilder.AppendLine("--------");
-            //strBuilder.AppendLine("Total projects: " + loadeds.Count);
-            //strBuilder.AppendLine("Total projects 2: " + this.ProjectCollection.Projects.Count());
-
-            //strBuilder.AppendLine("DEBUG");
-            //foreach (var i in loadeds)
-            //    strBuilder.AppendLine(i);
-
-            //strBuilder.AppendLine("bag:DEBUG");
-            //foreach (var i in this.ProjectCollection.Projects)
-            //    strBuilder.AppendLine(i.Name);
-
-            return strBuilder.ToString();
-        }
-
-        private void ToStringHierarchy(Project project, StringBuilder strBuider, bool showFullTree, List<string> loadeds, int level = 0)
-        {
-            level++;
-            var resume = string.Format(" (count refs: {0}, count inverse refs: {1})", project.ProjectsReferences.Count, project.ProjectsParents.Count);
-            strBuider.Append(project.Name + resume);
-
-            if (project.ProjectsReferences.Count > 0)
-            {
-                foreach (var pRef in project.ProjectsReferences)
-                {
-                    strBuider.AppendLine();
-                    strBuider.Append(new String('.', level * 3));
-                    if (!showFullTree && loadeds.Contains(pRef.Name))
-                        strBuider.Append(pRef.Name + "*");
-                    else
-                    {
-                        ToStringHierarchy(pRef, strBuider, showFullTree, loadeds, level);
-                        if (!showFullTree && !loadeds.Contains(pRef.Name))
-                            loadeds.Add(pRef.Name);
-                    }
-                }
-            }
-
-            if (!loadeds.Contains(project.Name))
-                loadeds.Add(project.Name);
-        }
-         * */
     }
 }
