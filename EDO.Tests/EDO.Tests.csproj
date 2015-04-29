@@ -65,7 +65,8 @@
     <Compile Include="DatabaseTests.cs" />
     <Compile Include="TestExpression.cs" />
     <Compile Include="Tests\TestsWithMainTokens.cs" />
-    <Compile Include="Tests\TestsWithSubTokens.cs" />
+    <Compile Include="Tests\TestsManual.cs" />
+    <Compile Include="Tests\TestsAutomatic.cs" />
     <Compile Include="Tests\Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -16,7 +16,10 @@ namespace EDO.Converter
     public class TokenToDebug : TokenToString
     {
         public TokenToDebug(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
-            : base(ignoreSubTokensOfMainTokens, delimiterMainTokens, delimiterSubTokensOfMainTokens)
+            : base(ignoreSubTokensOfMainTokens, 
+                   string.IsNullOrWhiteSpace(delimiterMainTokens) ? "\r\n-----\r\n" : delimiterMainTokens, 
+                   string.IsNullOrWhiteSpace(delimiterSubTokensOfMainTokens) ? "\r\n\r\n" : delimiterSubTokensOfMainTokens
+                  )
         {
         }
 
@@ -38,7 +41,7 @@ namespace EDO.Converter
                 strBuilder.AppendLine();
             }
 
-            return strBuilder.ToString();
+            return Helper.TrimAll(strBuilder.ToString());
         }
     }
 }

@@ -16,7 +16,10 @@ namespace EDO.Converter
     public class TokenToHierarchy : TokenToString
     {
         public TokenToHierarchy(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
-            : base(ignoreSubTokensOfMainTokens, delimiterMainTokens, delimiterSubTokensOfMainTokens)
+            : base(ignoreSubTokensOfMainTokens,
+                   string.IsNullOrWhiteSpace(delimiterMainTokens) ? "\r\n-----\r\n" : delimiterMainTokens,
+                   string.IsNullOrWhiteSpace(delimiterSubTokensOfMainTokens) ? "\r\n\r\n" : delimiterSubTokensOfMainTokens
+                  )
         {
         }
 

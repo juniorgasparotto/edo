@@ -19,7 +19,7 @@ namespace EDO.Converter
 
         public TokenToHierarchyInverse(string delimiterMainTokens = null)
         {
-            delimiterMainTokens = string.IsNullOrEmpty(delimiterMainTokens) ? "\r\n" : delimiterMainTokens;
+            delimiterMainTokens = string.IsNullOrEmpty(delimiterMainTokens) ? "\r\n-----\r\n" : delimiterMainTokens;
             this.delimiterMainTokens = delimiterMainTokens;
         }
         
