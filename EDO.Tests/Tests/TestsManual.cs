@@ -151,5 +151,33 @@ namespace EDO.Unit
             var expressionOutput2 = converterExpression.Convert(tokensCollection[edoMain].MainTokens);
             Assert.IsTrue(expressionInput == expressionOutput2);
         }
+
+        [TestMethod]
+        public void TestUtils()
+        {
+            var expressionInput = "A + (B + (C + D)) + C";
+            var collection = EdoUtils.ToEdoObjectCollection(expressionInput);
+            var edo = EdoUtils.ToEdoObject(expressionInput);
+
+            var expressionOutputCollection = EdoUtils.ToExpression(collection);
+            var expressionOutputEdo = EdoUtils.ToExpression(edo);
+
+            var hierarchyOutputCollection = EdoUtils.ToHierarchy(collection);
+            var hierarchyOutputEdo = EdoUtils.ToHierarchy(edo);
+            
+            var hierarchyInverseOutputCollection = EdoUtils.ToHierarchyInverse(collection);
+            var hierarchyInverseOutputEdo = EdoUtils.ToHierarchyInverse(edo);
+
+            var debugOutputCollection = EdoUtils.ToDebug(collection);
+            var debugOutputEdo = EdoUtils.ToDebug(edo);
+
+            string executable = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string path = (System.IO.Path.GetDirectoryName(executable));
+            path = Path.GetFullPath(Path.Combine(path, "../../"));
+
+            System.IO.StreamWriter file = new System.IO.StreamWriter(path + "Output/output1.txt");
+            file.WriteLine(debugOutputEdo);
+            file.Close();
+        }
     }
 }

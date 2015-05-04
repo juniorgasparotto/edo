@@ -26,7 +26,6 @@ namespace EDO.Converter
         public virtual string Convert(TokenGroupCollection collection, EDObject edoObject = null)
         {
             var strBuilder = new StringBuilder();
-            var last = collection.LastOrDefault();
             List<TokenGroup> list;
 
             if (edoObject != null)
@@ -34,7 +33,9 @@ namespace EDO.Converter
             else
                 list = collection.ToList();
 
-            foreach (var keyPair in collection)
+            var last = list.LastOrDefault();
+
+            foreach (var keyPair in list)
             {
                 strBuilder.Append(this.Convert(keyPair));
 
@@ -48,7 +49,6 @@ namespace EDO.Converter
         protected virtual string Convert(TokenGroup tokenGroup)
         {
             var strBuilder = new StringBuilder();
-            var last = tokenGroup.LastOrDefault();
 
             List<List<Token>> list;
             if (ignoreSubTokensOfMainTokens)
@@ -60,6 +60,8 @@ namespace EDO.Converter
             { 
                 list = tokenGroup.ToList();
             }
+
+            var last = list.LastOrDefault();
 
             foreach (var parsedToken in list)
             {

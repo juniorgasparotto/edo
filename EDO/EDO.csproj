@@ -58,6 +58,7 @@
     <Compile Include="Converter\TokenToString.cs" />
     <Compile Include="Converter\TokenToExpression.cs" />
     <Compile Include="Converter\TokenToHierarchy.cs" />
+    <Compile Include="EdoUtils.cs" />
     <Compile Include="RecursiveExtensions.cs" />
     <Compile Include="TokenOrganizer.cs" />
     <Compile Include="Converter\deleted\TokenToHierarchyInverse.cs" />

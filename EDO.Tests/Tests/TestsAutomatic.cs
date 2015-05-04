@@ -33,7 +33,7 @@ namespace EDO.Unit
 
         public void UpdateByCode()
         {
-            var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 12).ToList();
+            var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 1).ToList();
             foreach (var test in tests)
             {
                 var collection = CreateObjectCollection(test.Input);
