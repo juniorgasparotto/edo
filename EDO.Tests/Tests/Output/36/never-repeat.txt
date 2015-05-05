@@ -1,0 +1,97 @@
+-> Input
+
+   Web+DAL.ABC +   (C +    ( J_A+IFF))
+
+-> Description
+
+   [IgnoreSubTokens] Test change '_' by '.'
+
+-> Print object 'Web'
+
+Expression:
+
+   Web + DAL.ABC + C
+
+Hierarchy:
+
+   Web
+   ...DAL.ABC
+   ...C
+
+Hierarchy inverse:
+
+   [no reference]
+   ...Web
+
+Debug:
+
+   Web hashcode: 64150164 level: 1 hashcodeValue: 24745856
+   + hashcode: 43181474 parent: (hashcode: 64150164; value: Web) level: 2 hashcodeValue: 6804828
+   DAL.ABC hashcode: 54210670 parent: (hashcode: 64150164; value: Web) level: 2 hashcodeValue: 59637757
+   + hashcode: 59113387 parent: (hashcode: 64150164; value: Web) level: 2 hashcodeValue: 6804828
+   C hashcode: 39711693 parent: (hashcode: 64150164; value: Web) level: 2 hashcodeValue: 60046517
+
+-> Print all objects:
+
+Expression:
+
+   Web + DAL.ABC + C
+   DAL.ABC
+   C + J.A
+   J.A + IFF
+   IFF
+
+Hierarchy:
+
+   Web
+   ...DAL.ABC
+   ...C
+   -----
+   DAL.ABC
+   -----
+   C
+   ...J.A
+   -----
+   J.A
+   ...IFF
+   -----
+   IFF
+
+Hierarchy Inverse:
+
+   [no reference]
+   ...Web
+   -----
+   Web
+   ...DAL.ABC
+   -----
+   Web
+   ...C
+   -----
+   C
+   ...J.A
+   -----
+   J.A
+   ...IFF
+
+Debug:
+
+   Web hashcode: 60296660 level: 1 hashcodeValue: 16383913
+   + hashcode: 2225013 parent: (hashcode: 60296660; value: Web) level: 2 hashcodeValue: 6804828
+   DAL.ABC hashcode: 15216621 parent: (hashcode: 60296660; value: Web) level: 2 hashcodeValue: 26144067
+   + hashcode: 27806395 parent: (hashcode: 60296660; value: Web) level: 2 hashcodeValue: 6804828
+   C hashcode: 22203660 parent: (hashcode: 60296660; value: Web) level: 2 hashcodeValue: 16229081
+   -----
+   DAL.ABC hashcode: 26965486 level: 1 hashcodeValue: 58198920
+   -----
+   C hashcode: 58861469 level: 1 hashcodeValue: 30390718
+   + hashcode: 50714774 parent: (hashcode: 58861469; value: C) level: 2 hashcodeValue: 6804828
+   J.A hashcode: 64507345 parent: (hashcode: 58861469; value: C) level: 2 hashcodeValue: 37961556
+   -----
+   J.A hashcode: 63565917 level: 1 hashcodeValue: 3128709
+   + hashcode: 48653378 parent: (hashcode: 63565917; value: J.A) level: 2 hashcodeValue: 6804828
+   IFF hashcode: 55344531 parent: (hashcode: 63565917; value: J.A) level: 2 hashcodeValue: 34481758
+   -----
+   IFF hashcode: 29205403 level: 1 hashcodeValue: 6858115
+
+

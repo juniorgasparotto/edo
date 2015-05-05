@@ -16,6 +16,7 @@ namespace EDO.Converter
     public class TokenToHierarchyInverse
     {
         private string delimiterMainTokens;
+        private const string noReferenceLabel = "[no reference]";
 
         public TokenToHierarchyInverse(string delimiterMainTokens = null)
         {
@@ -61,7 +62,7 @@ namespace EDO.Converter
             foreach (var child in organizedChilds)
             {
                 if (child.Value.Count == 0)
-                    strBuilder.AppendLine("[any references for this]");
+                    strBuilder.AppendLine(noReferenceLabel);
                 else
                     foreach (var parent in child.Value)
                         strBuilder.AppendLine(parent.Name);

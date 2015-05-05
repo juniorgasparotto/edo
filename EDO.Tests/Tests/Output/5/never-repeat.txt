@@ -1,0 +1,90 @@
+-> Input
+
+   A + (B + (C + D)) + C
+
+-> Description
+
+   test happy
+
+-> Print object 'A'
+
+Expression:
+
+   A + B + C
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+
+Hierarchy inverse:
+
+   [no reference]
+   ...A
+
+Debug:
+
+   A hashcode: 49338645 level: 1 hashcodeValue: 13590541
+   + hashcode: 33087971 parent: (hashcode: 49338645; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 16295387 parent: (hashcode: 49338645; value: A) level: 2 hashcodeValue: 66058412
+   + hashcode: 28242169 parent: (hashcode: 49338645; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 38327311 parent: (hashcode: 49338645; value: A) level: 2 hashcodeValue: 8824382
+
+-> Print all objects:
+
+Expression:
+
+   A + B + C
+   B + C
+   C + D
+   D
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+   -----
+   B
+   ...C
+   -----
+   C
+   ...D
+   -----
+   D
+
+Hierarchy Inverse:
+
+   [no reference]
+   ...A
+   -----
+   A
+   ...B
+   -----
+   A
+   B
+   ...C
+   -----
+   C
+   ...D
+
+Debug:
+
+   A hashcode: 44338457 level: 1 hashcodeValue: 29910196
+   + hashcode: 32935454 parent: (hashcode: 44338457; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 10652268 parent: (hashcode: 44338457; value: A) level: 2 hashcodeValue: 58589616
+   + hashcode: 20332174 parent: (hashcode: 44338457; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 14092958 parent: (hashcode: 44338457; value: A) level: 2 hashcodeValue: 51677409
+   -----
+   B hashcode: 3569406 level: 1 hashcodeValue: 64959174
+   + hashcode: 54679205 parent: (hashcode: 3569406; value: B) level: 2 hashcodeValue: 6804828
+   C hashcode: 9864684 parent: (hashcode: 3569406; value: B) level: 2 hashcodeValue: 29449012
+   -----
+   C hashcode: 52129051 level: 1 hashcodeValue: 49726708
+   + hashcode: 27948879 parent: (hashcode: 52129051; value: C) level: 2 hashcodeValue: 6804828
+   D hashcode: 27475584 parent: (hashcode: 52129051; value: C) level: 2 hashcodeValue: 9963663
+   -----
+   D hashcode: 30767055 level: 1 hashcodeValue: 64639223
+
+

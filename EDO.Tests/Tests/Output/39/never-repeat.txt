@@ -1,0 +1,90 @@
+-> Input
+
+   A + (B + (C + D)) + C
+
+-> Description
+
+   [IgnoreSubTokens] test happy
+
+-> Print object 'A'
+
+Expression:
+
+   A + B + C
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+
+Hierarchy inverse:
+
+   [no reference]
+   ...A
+
+Debug:
+
+   A hashcode: 20943880 level: 1 hashcodeValue: 36726079
+   + hashcode: 16687669 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 13463999 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 28405935
+   + hashcode: 44386665 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 31693893 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 31823364
+
+-> Print all objects:
+
+Expression:
+
+   A + B + C
+   B + C
+   C + D
+   D
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+   -----
+   B
+   ...C
+   -----
+   C
+   ...D
+   -----
+   D
+
+Hierarchy Inverse:
+
+   [no reference]
+   ...A
+   -----
+   A
+   ...B
+   -----
+   A
+   B
+   ...C
+   -----
+   C
+   ...D
+
+Debug:
+
+   A hashcode: 29792780 level: 1 hashcodeValue: 28591051
+   + hashcode: 51235950 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 16681963 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 13252863
+   + hashcode: 20593887 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 23776317 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 7308509
+   -----
+   B hashcode: 1034016 level: 1 hashcodeValue: 38258595
+   + hashcode: 6281888 parent: (hashcode: 1034016; value: B) level: 2 hashcodeValue: 6804828
+   C hashcode: 31103298 parent: (hashcode: 1034016; value: B) level: 2 hashcodeValue: 9971364
+   -----
+   C hashcode: 18191832 level: 1 hashcodeValue: 2009176
+   + hashcode: 7230683 parent: (hashcode: 18191832; value: C) level: 2 hashcodeValue: 6804828
+   D hashcode: 66208710 parent: (hashcode: 18191832; value: C) level: 2 hashcodeValue: 33803196
+   -----
+   D hashcode: 17734871 level: 1 hashcodeValue: 52210460
+
+

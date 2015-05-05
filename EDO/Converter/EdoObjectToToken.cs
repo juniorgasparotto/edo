@@ -34,8 +34,11 @@ namespace EDO.Converter
         {
             // Convert
             var list = new List<EDObject>();
-            list.Add(edoObj);
             list.AddRange(edoObj.References.Traverse(f => f.References));
+
+            // Prevent recursion
+            if (!list.Contains(edoObj))
+                list.Add(edoObj);
 
             var res = new TokenGroupCollection();
             foreach (var obj in list)
