@@ -1,20 +1,27 @@
 ﻿ToDo
 
-
-fazer o hiarquia
-fazer o hierquia inversa
 testes com projetos com o mesmo nome
+fazer a separação de objectcollections que não se relacionam
+refatorar o Traverse e outros helpers e tentar criar extensions para ToExpression e etc
+adicionar no nuget
+criar wikipedia
+criar github page document
+patentiar ideia
+criar mecanismo tipo jquery para pesquisa em graphos
+
 fazer objeto de outro tipo virar um edo
 tentar fazer o references ser um edoobjectcollection
 tentar fazer o teste FAILURE funcionar de acordo, pensar em mecanismo de sort ou algo assim
 
 criar outro tipo de printer (tipo json talvez, html)
+
+fazer o hiarquia - ok
+fazer o hierquia inversa - ok
 testar o "menos - " - ok
 fazer o create levar em consideração expressão com delimitador para collection - ok
 acertar o level - ok
 refatorar onde ira ficar o expression - ok
 testar create para EDObject, sem usar collection - não dá - ok
-
 
 framework Graph
 
