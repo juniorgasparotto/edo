@@ -1,0 +1,93 @@
+-> Input
+
+   A + (B + (C + D + (A+B))) + C
+
+-> Description
+
+   [IgnoreSubTokens] Test recursive, A can't repeat because referenced yourself. C can't be repeat too because referenced A and A reference C causing a recursion
+
+-> Print object 'A'
+
+Expression:
+
+   A + B + C
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+
+Hierarchy inverse:
+
+   C
+   ...A
+
+Debug:
+
+   A hashcode: 58107247 level: 1 hashcodeValue: 2484508
+   + hashcode: 24817966 parent: (hashcode: 58107247; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 45849536 parent: (hashcode: 58107247; value: A) level: 2 hashcodeValue: 18711233
+   + hashcode: 21226987 parent: (hashcode: 58107247; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 47201028 parent: (hashcode: 58107247; value: A) level: 2 hashcodeValue: 1607604
+
+-> Print all objects:
+
+Expression:
+
+   A + B + C
+   B + C
+   C + D + A
+   D
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+   -----
+   B
+   ...C
+   -----
+   C
+   ...D
+   ...A
+   -----
+   D
+
+Hierarchy Inverse:
+
+   C
+   ...A
+   -----
+   A
+   ...B
+   -----
+   A
+   B
+   ...C
+   -----
+   C
+   ...D
+
+Debug:
+
+   A hashcode: 46117611 level: 1 hashcodeValue: 28630007
+   + hashcode: 52677320 parent: (hashcode: 46117611; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 2903820 parent: (hashcode: 46117611; value: A) level: 2 hashcodeValue: 40332492
+   + hashcode: 15907203 parent: (hashcode: 46117611; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 51695618 parent: (hashcode: 46117611; value: A) level: 2 hashcodeValue: 33689698
+   -----
+   B hashcode: 8168770 level: 1 hashcodeValue: 33809045
+   + hashcode: 42975134 parent: (hashcode: 8168770; value: B) level: 2 hashcodeValue: 6804828
+   C hashcode: 46576101 parent: (hashcode: 8168770; value: B) level: 2 hashcodeValue: 45594138
+   -----
+   C hashcode: 62573293 level: 1 hashcodeValue: 33510492
+   + hashcode: 31928658 parent: (hashcode: 62573293; value: C) level: 2 hashcodeValue: 6804828
+   D hashcode: 40509693 parent: (hashcode: 62573293; value: C) level: 2 hashcodeValue: 22463643
+   + hashcode: 25848438 parent: (hashcode: 62573293; value: C) level: 2 hashcodeValue: 6804828
+   A hashcode: 16868133 parent: (hashcode: 62573293; value: C) level: 2 hashcodeValue: 20141150
+   -----
+   D hashcode: 20731524 level: 1 hashcodeValue: 28868896
+
+

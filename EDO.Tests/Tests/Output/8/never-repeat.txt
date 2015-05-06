@@ -1,0 +1,90 @@
+-> Input
+
+   A+(B+C)+(D+B)
+
+-> Description
+
+   Test Simple
+
+-> Print object 'A'
+
+Expression:
+
+   A + B + D
+
+Hierarchy:
+
+   A
+   ...B
+   ...D
+
+Hierarchy inverse:
+
+   [no reference]
+   ...A
+
+Debug:
+
+   A hashcode: 54317451 level: 1 hashcodeValue: 63588632
+   + hashcode: 3969150 parent: (hashcode: 54317451; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 12640835 parent: (hashcode: 54317451; value: A) level: 2 hashcodeValue: 65057743
+   + hashcode: 58326286 parent: (hashcode: 54317451; value: A) level: 2 hashcodeValue: 6804828
+   D hashcode: 10588965 parent: (hashcode: 54317451; value: A) level: 2 hashcodeValue: 56247415
+
+-> Print all objects:
+
+Expression:
+
+   A + B + D
+   B + C
+   C
+   D + B
+
+Hierarchy:
+
+   A
+   ...B
+   ...D
+   -----
+   B
+   ...C
+   -----
+   C
+   -----
+   D
+   ...B
+
+Hierarchy Inverse:
+
+   [no reference]
+   ...A
+   -----
+   A
+   D
+   ...B
+   -----
+   A
+   ...D
+   -----
+   B
+   ...C
+
+Debug:
+
+   A hashcode: 11269455 level: 1 hashcodeValue: 14316667
+   + hashcode: 59954638 parent: (hashcode: 11269455; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 3729113 parent: (hashcode: 11269455; value: A) level: 2 hashcodeValue: 3759477
+   + hashcode: 4882953 parent: (hashcode: 11269455; value: A) level: 2 hashcodeValue: 6804828
+   D hashcode: 46451547 parent: (hashcode: 11269455; value: A) level: 2 hashcodeValue: 40985656
+   -----
+   B hashcode: 40559324 level: 1 hashcodeValue: 24299981
+   + hashcode: 26684092 parent: (hashcode: 40559324; value: B) level: 2 hashcodeValue: 6804828
+   C hashcode: 47787336 parent: (hashcode: 40559324; value: B) level: 2 hashcodeValue: 23300980
+   -----
+   C hashcode: 20985992 level: 1 hashcodeValue: 38284210
+   -----
+   D hashcode: 32376377 level: 1 hashcodeValue: 57075269
+   + hashcode: 31410173 parent: (hashcode: 32376377; value: D) level: 2 hashcodeValue: 6804828
+   B hashcode: 21325715 parent: (hashcode: 32376377; value: D) level: 2 hashcodeValue: 50853963
+
+

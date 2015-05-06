@@ -11,7 +11,7 @@ using EDO.Tests;
 namespace EDO.Unit
 {
     [TestClass]
-    public class TestsAutomatic
+    public class TestsConvertersAndUsingDatabaseForTest
     {
         private List<TestExpression> testsExpressions;
         private DatabaseTests database;
@@ -21,18 +21,15 @@ namespace EDO.Unit
         [TestInitialize]
         public void Setup()
         {
-            string executable = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string path = (System.IO.Path.GetDirectoryName(executable));
-            path = Path.GetFullPath(Path.Combine(path, "../../"));
-            AppDomain.CurrentDomain.SetData("DataDirectory", path);
-
+            DatabaseTests.SetDataDirectory();
             this.database = new DatabaseTests();
-            this.UpdateByCode();
+            this.UpdateDataBaseByCode();
             this.testsExpressions = database.TestExpressions.ToList();
         }
 
-        public void UpdateByCode()
+        public void UpdateDataBaseByCode()
         {
+            // update only lines with dosen't was updated and homologated
             var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 1).ToList();
             foreach (var test in tests)
             {
@@ -85,7 +82,7 @@ namespace EDO.Unit
         }
 
         [TestMethod]
-        public void TestMultiplesExpressions()
+        public void TestMultiplesExpressionsUsingDataBase()
         {
             var init = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
             foreach (var test in testsExpressions)

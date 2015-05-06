@@ -22,5 +22,16 @@ namespace EDO
 
             return reverse;
         }
+
+        public static string Indent(string str, int count)
+        {
+            var builder = new StringBuilder();
+            foreach (var s in str)
+            {
+                builder.AppendLine("".PadLeft(count) + s);
+            }
+
+            return builder.ToString();
+        }
     }
 }

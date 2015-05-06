@@ -1,0 +1,131 @@
+-> Input
+
+   A + B + C + D + (E+J) + J
+
+-> Description
+
+   Test with one parenthesis and withot spaces
+
+-> Print object 'A'
+
+Expression:
+
+   A + B + C + D + (E + J) + J
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+   ...D
+   ...E
+   ......J
+   ...J
+
+Hierarchy inverse:
+
+   [no reference]
+   ...A
+
+Debug:
+
+   A hashcode: 31449321 level: 1 hashcodeValue: 22774215
+   + hashcode: 37339588 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 39387482 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 48050703
+   + hashcode: 33045579 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 14726906 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 8024641
+   + hashcode: 28476291 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 6804828
+   D hashcode: 46989809 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 60901366
+   + hashcode: 38758050 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 6804828
+   ( hashcode: 24761715 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 40675337
+   E hashcode: 43768232 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 8811879
+   + hashcode: 57604075 parent: (hashcode: 43768232; value: E) level: 3 hashcodeValue: 6804828
+   J hashcode: 50976016 parent: (hashcode: 43768232; value: E) level: 3 hashcodeValue: 7064416
+   ) hashcode: 60056828 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 63699541
+   + hashcode: 7510158 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 6804828
+   J hashcode: 9440394 parent: (hashcode: 31449321; value: A) level: 2 hashcodeValue: 7064416
+
+-> Print all objects:
+
+Expression:
+
+   A + B + C + D + (E + J) + J
+   B
+   C
+   D
+   E + J
+   J
+
+Hierarchy:
+
+   A
+   ...B
+   ...C
+   ...D
+   ...E
+   ......J
+   ...J
+   -----
+   B
+   -----
+   C
+   -----
+   D
+   -----
+   E
+   ...J
+   -----
+   J
+
+Hierarchy Inverse:
+
+   [no reference]
+   ...A
+   -----
+   A
+   ...B
+   -----
+   A
+   ...C
+   -----
+   A
+   ...D
+   -----
+   A
+   ...E
+   -----
+   E
+   A
+   ...J
+
+Debug:
+
+   A hashcode: 25459125 level: 1 hashcodeValue: 2463537
+   + hashcode: 24042009 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 6804828
+   B hashcode: 17139103 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 30167047
+   + hashcode: 42438920 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 6804828
+   C hashcode: 26736197 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 49715211
+   + hashcode: 27523498 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 6804828
+   D hashcode: 11736469 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 31596186
+   + hashcode: 28208228 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 6804828
+   ( hashcode: 37071502 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 40675337
+   E hashcode: 29468295 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 16585097
+   + hashcode: 9668826 parent: (hashcode: 29468295; value: E) level: 3 hashcodeValue: 6804828
+   J hashcode: 22202274 parent: (hashcode: 29468295; value: E) level: 3 hashcodeValue: 16177805
+   ) hashcode: 61707904 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 63699541
+   + hashcode: 1491102 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 6804828
+   J hashcode: 55170776 parent: (hashcode: 25459125; value: A) level: 2 hashcodeValue: 16177805
+   -----
+   B hashcode: 63794975 level: 1 hashcodeValue: 11603866
+   -----
+   C hashcode: 31205479 level: 1 hashcodeValue: 13752063
+   -----
+   D hashcode: 60394400 level: 1 hashcodeValue: 20000314
+   -----
+   E hashcode: 524986 level: 1 hashcodeValue: 19424506
+   + hashcode: 47618093 parent: (hashcode: 524986; value: E) level: 2 hashcodeValue: 6804828
+   J hashcode: 17038977 parent: (hashcode: 524986; value: E) level: 2 hashcodeValue: 26462373
+   -----
+   J hashcode: 33268994 level: 1 hashcodeValue: 22993233
+
+

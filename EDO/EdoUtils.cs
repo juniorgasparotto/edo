@@ -105,9 +105,9 @@ namespace EDO
             return output;
         }
 
-        public static string ToHierarchyInverse(EDObject edo)
+        public static string ToHierarchyInverse(EDObject edo, TokenizeType tokenizeType = TokenizeType.Normal)
         {
-            var converterToToken = new EdoObjectToToken();
+            var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToExp = new TokenToHierarchyInverse();
 
             var tokenGroupCollection = converterToToken.Convert(edo);

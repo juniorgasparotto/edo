@@ -4,6 +4,7 @@ namespace EDO.Tests
     using System.Data.Entity;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
+    using System.IO;
 
     public partial class DatabaseTests : DbContext
     {
@@ -16,6 +17,14 @@ namespace EDO.Tests
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+        }
+
+        public static void SetDataDirectory()
+        {
+            string executable = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string path = (System.IO.Path.GetDirectoryName(executable));
+            path = Path.GetFullPath(Path.Combine(path, "../../"));
+            AppDomain.CurrentDomain.SetData("DataDirectory", path);
         }
     }
 }
