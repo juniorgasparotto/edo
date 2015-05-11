@@ -16,13 +16,7 @@ namespace EDO
             var converter = new ExpressionToEdoObject();
             return converter.Convert(expressions);
         }
-
-        public static void ToEdoObjectCollection(EDObjectCollection collectionToapply, params string[] expressions)
-        {
-            var converter = new ExpressionToEdoObject();
-            converter.Convert(collectionToapply, expressions);
-        }
-
+        
         public static EDObject ToEdoObject(params string[] expressions)
         {
             var converter = new ExpressionToEdoObject();
@@ -34,17 +28,20 @@ namespace EDO
         {
             var converter = new ExpressionToEdoObject();
             var collection = converter.Convert(expressions);
-            return collection.GetObjectByName(name);
+            return collection.Contains(name);
         }
 
-        public static void ToEdoObject(EDObject edoToApply, params string[] expressions)
+        public static void ApplyExpression(EDObjectCollection collectionToApply, params string[] expressions)
         {
-            if (edoToApply.Collection == null)
-                throw new Exception("Property in parameter 'edoToApply.Collection' can't be null");
-
             var converter = new ExpressionToEdoObject();
-            converter.Convert(edoToApply.Collection, expressions);
+            converter.Convert(collectionToApply, expressions);
         }
+
+        //public static void ApplyExpression(EDObject edoToApply, params string[] expressions)
+        //{
+        //    var converter = new ExpressionToEdoObject();
+        //    converter.Convert(edoToApply, expressions);
+        //}
         
         #endregion
 

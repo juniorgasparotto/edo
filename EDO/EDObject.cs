@@ -13,15 +13,12 @@ namespace EDO
         public List<EDObject> Parents { get; private set; }
         public EDObjectCollection Collection { get; private set; }
 
-        public EDObject(string name, EDObjectCollection collection = null)
+        public EDObject(string name)
         {
             this.Name = name;
             this.References = new List<EDObject>();
             this.Parents = new List<EDObject>();
-            this.Collection = collection;
-            
-            if (this.Collection != null)
-                this.Collection.Add(this);
+            this.Collection = new EDObjectCollection();
         }
 
         public void AddReference(EDObject obj)
@@ -34,9 +31,10 @@ namespace EDO
 
                 this.References.Add(obj);
                 obj.Parents.Add(this);
-                if (this.Collection != null)
-                    this.Collection.Add(obj);
             }
+
+            this.Collection.Add(obj);
+
         }
 
         public void RemoveReference(EDObject obj)
@@ -49,8 +47,8 @@ namespace EDO
                 obj.Parents.RemoveAll(f => f.Name == this.Name);
             }
 
-            if (this.Collection != null)
-                this.Collection.Remove(obj);
+            //if (this.Collection != null)
+            //    this.Collection.Remove(obj);
         }
 
         public bool HasDirectOrIndirectReference(EDObject objectVerify)

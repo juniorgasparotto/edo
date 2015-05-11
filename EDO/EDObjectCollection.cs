@@ -8,18 +8,12 @@ using System.Text.RegularExpressions;
 
 namespace EDO
 {
-    public class EDObjectCollection : IEnumerable<EDObject>
+    public class EDObjectCollection : ICollection<EDObject>
     {
         private List<EDObject> objects;
-
         public EDObjectCollection()
         {
             this.objects = new List<EDObject>();
-        }
-
-        public EDObject GetObjectByName(string name)
-        {
-            return this.objects.FirstOrDefault(f => f.Name == name);
         }
 
         public void Add(EDObject obj)
@@ -34,15 +28,50 @@ namespace EDO
             }
         }
 
-        public void Remove(EDObject obj)
+        public bool Remove(EDObject obj)
         {
-            this.objects.Remove(obj);
-            this.objects.RemoveAll(f => f.Name == obj.Name);
+            return this.objects.Remove(obj);
+            //var res = this.objects.Remove(obj);
+            //var res2 = this.objects.RemoveAll(f => f.Name == obj.Name);
+            //return res ? true : (res2 > 0 ? true : false);
         }
 
         public IEnumerator<EDObject> GetEnumerator()
         {
-            return objects.GetEnumerator();
+            return this.objects.GetEnumerator();
+        }
+
+        //public void Reverse()
+        //{
+        //    this.objects.Reverse();
+        //}
+
+        public void Clear()
+        {
+            this.objects.Clear();
+        }
+
+        public bool Contains(EDObject item)
+        {
+            return this.objects.Contains(item);
+        }
+
+        public EDObject Contains(string name)
+        {
+            return this.objects.FirstOrDefault(f => f.Name == name);
+        }
+
+        public void CopyTo(EDObject[] array, int arrayIndex)
+        {
+            this.objects.CopyTo(array, arrayIndex);
+        }
+
+        public int Count
+        {
+            get 
+            {
+                return this.objects.Count;    
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -50,9 +79,12 @@ namespace EDO
             return objects.GetEnumerator();
         }
 
-        public void Reverse()
+        bool ICollection<EDObject>.IsReadOnly
         {
-            objects.Reverse();
-        } 
+            get
+            {
+                return ((ICollection<EDObject>)objects).IsReadOnly;
+            }
+        }
     }
 }

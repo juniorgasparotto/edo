@@ -64,8 +64,9 @@
   <ItemGroup>
     <Compile Include="DatabaseTests.cs" />
     <Compile Include="TestExpression.cs" />
-    <Compile Include="Tests\TestsUtilsMethodsAndUsingTxtWithBaseForTest.cs" />
-    <Compile Include="Tests\TestsConvertersAndUsingDatabaseForTest.cs" />
+    <Compile Include="Tests\TestAuto2.cs" />
+    <Compile Include="Tests\TestsSpecials.cs" />
+    <Compile Include="Tests\TestAuto1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
