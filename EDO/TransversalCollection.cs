@@ -22,12 +22,16 @@ namespace EDO
         {
             this.invalidated = false;
             var copy = new UniqueEntityList();
+            var merge = new UniqueEntityList();
             foreach (var item in this.objects)
             {
                 try
                 {
                     copy.Add(item);
-                    copy.AddRange(item.References.Traverse(f => f.References));
+                    merge.AddRange(item.References.Traverse(f => f.References));
+                    foreach (var itemMerge in merge)
+                        if (!this.objects.Contains(itemMerge))
+                            copy.Add(itemMerge);
                 }
                 catch(EntityAlreadyExistsException ex)
                 {

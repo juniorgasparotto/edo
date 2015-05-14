@@ -144,7 +144,13 @@ namespace EDO.Unit
             // Saving collection
             y.Remove(y.FindHierarchically("B"));
             expressionInput = EdoUtils.ToExpression(collection);
-
+            Assert.IsTrue(expressionInput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D + (Y + Z + J) + Z\r\nY + Z + J\r\nZ\r\nJ", "Test");
+            
+            EdoUtils.ApplyExpression(y, "Y + L");
+            collection.Refresh();
+            expressionInput = EdoUtils.ToExpression(collection);
+            Assert.IsTrue(expressionInput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D + (Y + Z + J + L) + Z\r\nL\r\nY + Z + J + L\r\nZ\r\nJ", "Test");
+            
             try
             {
                 collection.Remove(edoB);
