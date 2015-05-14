@@ -27,23 +27,132 @@ namespace EDO.Unit
 
             //Test1
             var edo = collection.Contains("A");
-            var expressionOutput = GetExpressionEdoObject(edo, type);
+            var expressionOutput = GetExpression(edo, type);
             Assert.IsTrue(expressionOutput == "A + (B + C) + C", "Teste 1");
 
             //Test2
             convertToEdo.Convert(collection, "B-C");
-            expressionOutput = GetExpressionEdoObject(edo, type);
+            expressionOutput = GetExpression(edo, type);
             Assert.IsTrue(expressionOutput == "A + B + C", "Teste 2");
 
             //Test3 using EdoUtils
             //convertToEdo.Convert(collection, "A+Y+Z+J; A-Y; ".Split(';'));
-            EdoUtils.ApplyExpression(collection, "A+Y+Z+J; A-Y; ".Split(';'));
-            expressionOutput = GetExpressionEdoObject(edo, type);
+            EdoUtils.ApplyExpression(edo, "A+Y+Z+J; A-Y; ".Split(';'));
+            expressionOutput = GetExpression(edo, type);
             Assert.IsTrue(expressionOutput == "A + B + C + Z + J", "Teste 3 using EdoUtils");
+        }
 
-            //EdoUtils.ApplyExpression(collection.GetObjectByName("J"), "J+Y+Z+J;".Split(';'));
-            //expressionOutput = GetExpressionEdoObject(edo, type);
-            //Assert.IsTrue(expressionOutput == "A + B + C + Z + J", "Teste 3 using EdoUtils");
+        [TestMethod]
+        public void TestIntegrityCollections()
+        {
+            var type = TokenizeType.Normal;
+            var convertToEdo = new ExpressionToEdoObject();
+            var converterToken = new EdoObjectToToken(type);
+
+            // Test create collection by expression
+            var expressionInput = "A + (B + (C + D)) + C";
+            var collection = convertToEdo.Convert(expressionInput);
+
+            // Basic test object 'A'
+            var edoA = collection.Contains("A");            
+            var edoB = collection.Contains("B");
+            var edoC = collection.Contains("C");
+            var edoD = collection.Contains("D");
+
+            var expressionOutput = GetExpression(edoA, type);
+            Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C", "Teste 1");
+            Assert.IsTrue(EdoUtils.ToExpression(edoB) == "B + (C + D)");
+            Assert.IsTrue(EdoUtils.ToExpression(edoC) == "C + D");
+            Assert.IsTrue(EdoUtils.ToExpression(edoD) == "D");
+
+            // Test new collection and add exists object "D"
+            var newCollection = EdoUtils.ApplyExpression(edoA, "A+D; ".Split(';'));
+            expressionOutput = GetExpression(newCollection, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
+            Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C + D", "Test new collection deriveted the object A");
+
+            // Test remove 'A'
+            collection.Remove(edoA);
+            expressionOutput = GetExpression(collection, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
+            Assert.IsTrue(expressionOutput == "B + (C + D)", "Teste remove collection");
+
+            // Test add again
+            collection.Add(edoA);
+            expressionOutput = GetExpression(collection, type);
+            Assert.IsTrue(expressionOutput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D", "Teste add again");
+            
+            try
+            {
+                edoA.Add(new HierarchicalEntity("D"));
+            }
+            catch(EntityAlreadyExistsException ex)
+            {
+                Assert.IsTrue(ex.Message == "Object 'D' already exists directly or indirectly.", "Expected error");
+            }
+
+            var y = new HierarchicalEntity("Y");
+            edoA.Add(y);
+            EdoUtils.ApplyExpression(y, "Y+Z+J");
+
+            expressionInput = EdoUtils.ToExpression(edoA);
+            Assert.IsTrue(expressionInput == "A + (B + (C + D)) + C + D + (Y + Z + J)");
+
+            EdoUtils.ApplyExpression(edoA, "A+Z");
+            expressionInput = EdoUtils.ToExpression(edoA);
+            Assert.IsTrue(expressionInput == "A + (B + (C + D)) + C + D + (Y + Z + J) + Z");
+
+            // New 'J' directly o.AddReference            
+            try
+            {
+                var j = new HierarchicalEntity("J");
+                edoA.Add(j);
+            }
+            catch (EntityAlreadyExistsException ex)
+            {
+                Assert.IsTrue(ex.Message == "Object 'J' already exists directly or indirectly.", "Expected error 2");
+            }
+
+            // Danify collectin because is add directly in object of 3 level
+            EdoUtils.ApplyExpression(y, "Y+B");
+
+            try
+            {
+                expressionInput = EdoUtils.ToExpression(edoA);
+            }
+            catch (EntityAlreadyExistsException ex)
+            {
+                Assert.IsTrue(ex.Message == "Object 'B' already exists in collection", "Expected error 3");
+            }
+
+            try
+            {
+                expressionInput = EdoUtils.ToExpression(collection);
+            }
+            catch (EntityAlreadyExistsException ex)
+            {
+                Assert.IsTrue(ex.Message == "Object 'B' already exists in collection", "Expected error 4");
+            }
+            
+            try
+            {
+                var a = collection.FirstOrDefault(f=>f.Name == "B");
+            }
+            catch (InvalidatedCollectionException ex)
+            {
+                Assert.IsTrue(ex.Message == "The collection is invalidated. Please corrected it or create another.", "Expected error 5");
+            }
+
+            // Saving collection
+            y.Remove(y.FindHierarchically("B"));
+            expressionInput = EdoUtils.ToExpression(collection);
+
+            try
+            {
+                collection.Remove(edoB);
+            }
+            catch (RemoveDeniedException ex)
+            {
+                Assert.IsTrue(ex.Message == "Unable to remove the object 'B' because it is being used by the object 'A' directly or indirectly.", "Expected error 6");
+            }
         }
 
         [TestMethod]
@@ -141,20 +250,28 @@ namespace EDO.Unit
 
         #region Helpers
 
-        public EDObjectCollection CreateObjectCollection(string exp)
+        public HorizontalCollection CreateObjectCollection(string exp)
         {
-            var collection = new EDObjectCollection();
+            var collection = new HorizontalCollection();
             var writer = new ExpressionToEdoObject();
             writer.Convert(collection, exp);
             return collection;
         }
 
-        public string GetExpressionEdoObject(EDObject edo, TokenizeType type)
+        public string GetExpression(HierarchicalEntity edo, TokenizeType type)
         {
             var converterToken = new EdoObjectToToken(type);
             var tokens = converterToken.Convert(edo);
             var converterExpression = new TokenToExpression();
             return converterExpression.Convert(tokens[edo].MainTokens);
+        }
+
+        public string GetExpression(HorizontalCollection collection, TokenizeType type)
+        {
+            var converterToken = new EdoObjectToToken(type);
+            var tokens = converterToken.Convert(collection);
+            var converterExpression = new TokenToExpression();
+            return converterExpression.Convert(tokens);
         }
 
         #endregion

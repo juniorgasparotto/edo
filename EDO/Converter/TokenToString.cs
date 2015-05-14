@@ -23,7 +23,7 @@ namespace EDO.Converter
 
         public abstract string Convert(List<Token> tokens);
 
-        public virtual string Convert(TokenGroupCollection collection, EDObject edoObject = null)
+        public virtual string Convert(TokenGroupCollection collection, HierarchicalEntity edoObject = null)
         {
             var strBuilder = new StringBuilder();
             List<TokenGroup> list;

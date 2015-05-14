@@ -6,8 +6,8 @@ namespace EDO
 {
     internal class ObjectParamExpression : IOperations
     {
-        private EDObject Object;
-        public ObjectParamExpression(EDObject Object)
+        private HierarchicalEntity Object;
+        public ObjectParamExpression(HierarchicalEntity Object)
         {
             this.Object = Object;
         }
@@ -17,14 +17,14 @@ namespace EDO
         object IOperations.Add(object b)
         {
             var p = (ObjectParamExpression)b;
-            this.Object.AddReference(p.Object);
+            this.Object.Add(p.Object);
             return this;
         }
 
         object IOperations.Soustract(object b)
         {
             var p = (ObjectParamExpression)b;
-            this.Object.RemoveReference(p.Object);
+            this.Object.Remove(p.Object);
             return this;
         }
 

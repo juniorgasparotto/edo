@@ -11,43 +11,43 @@ namespace EDO
     {
         #region Writers
 
-        public static EDObjectCollection ToEdoObjectCollection(params string[] expressions)
+        public static HorizontalCollection ToEdoObjectCollection(params string[] expressions)
         {
             var converter = new ExpressionToEdoObject();
             return converter.Convert(expressions);
         }
         
-        public static EDObject ToEdoObject(params string[] expressions)
+        public static HierarchicalEntity ToEdoObject(params string[] expressions)
         {
             var converter = new ExpressionToEdoObject();
             var collection = converter.Convert(expressions);
             return collection.FirstOrDefault();
         }
 
-        public static EDObject ToEdoObject(string name, string[] expressions)
+        public static HierarchicalEntity ToEdoObject(string name, string[] expressions)
         {
             var converter = new ExpressionToEdoObject();
             var collection = converter.Convert(expressions);
             return collection.Contains(name);
         }
 
-        public static void ApplyExpression(EDObjectCollection collectionToApply, params string[] expressions)
+        public static void ApplyExpression(HorizontalCollection collectionToApply, params string[] expressions)
         {
             var converter = new ExpressionToEdoObject();
             converter.Convert(collectionToApply, expressions);
         }
 
-        //public static void ApplyExpression(EDObject edoToApply, params string[] expressions)
-        //{
-        //    var converter = new ExpressionToEdoObject();
-        //    converter.Convert(edoToApply, expressions);
-        //}
+        public static HorizontalCollection ApplyExpression(HierarchicalEntity edoToApply, params string[] expressions)
+        {
+            var converter = new ExpressionToEdoObject();
+            return converter.Convert(edoToApply, expressions);
+        }
         
         #endregion
 
         #region Readers (ignore sub tokens)
 
-        public static string ToExpression(EDObjectCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToExpression(HorizontalCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToExpression(true);
@@ -58,7 +58,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToExpression(EDObject edo, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToExpression(HierarchicalEntity edo, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToExpression(true);
@@ -69,7 +69,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToHierarchy(EDObjectCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToHierarchy(HorizontalCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToHierarchy(true);
@@ -80,7 +80,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToHierarchy(EDObject edo, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToHierarchy(HierarchicalEntity edo, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToHierarchy(true);
@@ -91,7 +91,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToHierarchyInverse(EDObjectCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToHierarchyInverse(HorizontalCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToHierarchyInverse();
@@ -102,7 +102,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToHierarchyInverse(EDObject edo, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToHierarchyInverse(HierarchicalEntity edo, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToExp = new TokenToHierarchyInverse();
@@ -113,7 +113,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToDebug(EDObjectCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToDebug(HorizontalCollection collection, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToDebug(true);
@@ -124,7 +124,7 @@ namespace EDO
             return output;
         }
 
-        public static string ToDebug(EDObject edo, TokenizeType tokenizeType = TokenizeType.Normal)
+        public static string ToDebug(HierarchicalEntity edo, TokenizeType tokenizeType = TokenizeType.Normal)
         {
             var converterToToken = new EdoObjectToToken(tokenizeType);
             var converterToString = new TokenToDebug(true);

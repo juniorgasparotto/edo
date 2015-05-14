@@ -21,8 +21,11 @@ namespace EDO.Converter
 
         #region Parse tokens
 
-        public TokenGroupCollection Convert(EDObjectCollection collection)
+        public TokenGroupCollection Convert(HorizontalCollection collection)
         {
+            // Update to prevent collection outdated
+            collection.Refresh();
+
             var res = new TokenGroupCollection();
             foreach (var obj in collection)
                 res.Add(this.GetToGroup(obj));
@@ -30,24 +33,19 @@ namespace EDO.Converter
             return res;
         }
 
-        public TokenGroupCollection Convert(EDObject edoObj)
+        public TokenGroupCollection Convert(HierarchicalEntity edoObj)
         {
             // Convert
-            var list = new List<EDObject>();
-            list.AddRange(edoObj.References.Traverse(f => f.References));
-
-            // Prevent recursion
-            if (!list.Contains(edoObj))
-                list.Add(edoObj);
-
+            var list = edoObj.ToHorizontalCollection();
             var res = new TokenGroupCollection();
+
             foreach (var obj in list)
                 res.Add(this.GetToGroup(obj));
             
             return res;
         }
 
-        private TokenGroup GetToGroup(EDObject edoObj)
+        private TokenGroup GetToGroup(HierarchicalEntity edoObj)
         {
             var tokenParsedBag = new TokenGroup(edoObj);
             this.ParseToken(edoObj, null, tokenParsedBag);
@@ -63,7 +61,7 @@ namespace EDO.Converter
         /// <param name="tokenBag">This object is used exclusive in recursive action. This is fill in recursive process</param>
         /// <param name="level">The object is used exclusive in recursive process</param>
         /// <returns>Return a Token instance that represent a Object instance</returns>
-        private Token ParseToken(EDObject edoObj, Token tokenParent = null, TokenGroup tokenParsedBag = null, int level = 1)
+        private Token ParseToken(HierarchicalEntity edoObj, Token tokenParent = null, TokenGroup tokenParsedBag = null, int level = 1)
         {            
             Token newTokenCurrent = GetOrCreateTokenObject(edoObj, tokenParent, tokenParsedBag, level);
             tokenParsedBag.Add(edoObj, newTokenCurrent);
@@ -102,7 +100,7 @@ namespace EDO.Converter
                         {
                             // No make sense in practice (circular reference), 
                             // but is fixes for prevent a infinite call
-                            if (exists != null && next.HasDirectOrIndirectReference(next))
+                            if (exists != null && next.ExistsHierarchically(next.Name))
                             {
                                 tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                                 tokenParsedBag.Add(edoObj, new TokenRecursive(exists.TokenValue, newTokenCurrent, level));
@@ -210,7 +208,7 @@ namespace EDO.Converter
         /// <param name="tokenBag">The token list to help a verify if object already exists and to find a parent token</param>
         /// <param name="level">The level in expression</param>
         /// <returns>Return a new Token of type T</returns>
-        private Token GetOrCreateTokenObject(EDObject obj, Token tokenParent, TokenGroup tokenBag, int level)
+        private Token GetOrCreateTokenObject(HierarchicalEntity obj, Token tokenParent, TokenGroup tokenBag, int level)
         {
             Token exists = tokenBag.ExistsGroup(obj) ? tokenBag[obj].FirstOrDefault(f => f.TokenValue.Value == obj) : null;
             if (exists != null)

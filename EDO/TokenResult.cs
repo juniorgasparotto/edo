@@ -9,9 +9,9 @@ namespace EDO
 {
     public class TokenResult
     {
-        public EDObject EdoObject { get; private set; }
-        public Dictionary<EDObject, List<Token>> Tokens { get; private set; }
-        public TokenResult(EDObject edoObject, Dictionary<EDObject, List<Token>> tokens)
+        public HierarchicalEntity EdoObject { get; private set; }
+        public Dictionary<HierarchicalEntity, List<Token>> Tokens { get; private set; }
+        public TokenResult(HierarchicalEntity edoObject, Dictionary<HierarchicalEntity, List<Token>> tokens)
         {
             this.EdoObject = edoObject;
             this.Tokens = tokens;

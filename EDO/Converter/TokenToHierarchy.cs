@@ -34,7 +34,7 @@ namespace EDO.Converter
             {
                 if (token is TokenRecursive)
                 {
-                    strBuilder.Append(((EDObject)token.TokenValue.Value).Name);
+                    strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Name);
                 }
                 else
                 {
@@ -44,9 +44,9 @@ namespace EDO.Converter
                         strBuilder.AppendLine();
                         strBuilder.Append(spacing);
                     }
-                    else if (token.TokenValue.Value is EDObject)
+                    else if (token.TokenValue.Value is HierarchicalEntity)
                     { 
-                        strBuilder.Append(((EDObject)token.TokenValue.Value).Name);
+                        strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Name);
                     }
                 }
             }

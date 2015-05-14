@@ -9,14 +9,14 @@ namespace EDO.Converter
 {
     public class ExpressionToEdoObject : IConverterFromExpression
     {
-        public EDObjectCollection Convert(params string[] expressions)
+        public HorizontalCollection Convert(params string[] expressions)
         {
-            var collection = new EDObjectCollection();
+            var collection = new HorizontalCollection();
             this.Convert(collection, expressions);
             return collection;
         }
 
-        public void Convert(EDObjectCollection collectionToAppy, params string[] expressions)
+        public void Convert(HorizontalCollection collectionToAppy, params string[] expressions)
         {
             if (collectionToAppy == null)
                 throw new Exception("Parameter 'collectionToAppy' can't be null'");
@@ -26,25 +26,18 @@ namespace EDO.Converter
             this.ApplyInList(collectionToAppy, expressions);
         }
 
-        //public void Convert(EDObject edoToApply, params string[] expressions)
-        //{
-        //    if (edoToApply == null)
-        //        throw new Exception("Parameter 'edoToApply' can't be null'");
+        public HorizontalCollection Convert(HierarchicalEntity edoToApply, params string[] expressions)
+        {
+            if (edoToApply == null)
+                throw new Exception("Parameter 'edoToApply' can't be null'");
 
-        //    expressions = expressions.Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
+            expressions = expressions.Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
+            var ret = edoToApply.ToHorizontalCollection();
+            this.ApplyInList(ret, expressions);
+            return ret;
+        }
 
-        //    // Prepare current items
-        //    var list = new List<EDObject>();
-        //    list.AddRange(edoToApply.References.Traverse(f => f.References));
-
-        //    // Prevent recursion
-        //    if (!list.Contains(edoToApply))
-        //        list.Add(edoToApply);
-
-        //    this.ApplyInList(list, expressions);
-        //}
-
-        private void ApplyInList(IEnumerable<EDObject> list, string[] expressions)
+        private void ApplyInList(HorizontalCollection collection, string[] expressions)
         {
             foreach (var expression in expressions)
             {
@@ -54,11 +47,11 @@ namespace EDO.Converter
                 {
                     // FIX to back params name
                     name = name.Replace('_', '.');
-                    var objectAdd = list.FirstOrDefault(f => f.Name == name);
+                    var objectAdd = collection.FirstOrDefault(f => f.Name == name);
                     if (objectAdd == null)
                     {
-                        objectAdd = new EDObject(name);
-                        ((ICollection<EDObject>)list).Add(objectAdd);
+                        objectAdd = new HierarchicalEntity(name);
+                        collection.Add(objectAdd);
                     }
 
                     var param = new ObjectParamExpression(objectAdd);

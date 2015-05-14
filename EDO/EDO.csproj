@@ -58,8 +58,10 @@
     <Compile Include="Converter\TokenToString.cs" />
     <Compile Include="Converter\TokenToExpression.cs" />
     <Compile Include="Converter\TokenToHierarchy.cs" />
-    <Compile Include="EDObject - Copy.cs" />
-    <Compile Include="EDObjectCollection - Copy.cs" />
+    <Compile Include="Exceptions\EntityAlreadyExistsException.cs" />
+    <Compile Include="Exceptions\InvalidatedCollectionException.cs" />
+    <Compile Include="Exceptions\RemoveDeniedException.cs" />
+    <Compile Include="UniqueEntityList.cs" />
     <Compile Include="EdoUtils.cs" />
     <Compile Include="RecursiveExtensions.cs" />
     <Compile Include="TokenOrganizer.cs" />
@@ -70,9 +72,9 @@
     <Compile Include="TokenResult2.cs" />
     <Compile Include="TokenResult.cs" />
     <Compile Include="Tokens.cs" />
-    <Compile Include="EDObjectCollection.cs" />
+    <Compile Include="TransversalCollection.cs" />
     <Compile Include="ComplexParam.cs" />
-    <Compile Include="EDObject.cs" />
+    <Compile Include="HierarchicalEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TokenizeType.cs" />
   </ItemGroup>

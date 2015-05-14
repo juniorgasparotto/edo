@@ -20,7 +20,7 @@ namespace EDO.Converter
             {
                 if (token is TokenRecursive)
                 {
-                    strBuilder.Append(((EDObject)token.TokenValue.Value).Name);
+                    strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Name);
                 }
                 else
                 {
@@ -31,7 +31,7 @@ namespace EDO.Converter
                     else if (token.TokenValue is TokenValueCloseParenthesis)
                         strBuilder.Append(")");
                     else
-                        strBuilder.Append(((EDObject)token.TokenValue.Value).Name);
+                        strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Name);
                 }
             }
 

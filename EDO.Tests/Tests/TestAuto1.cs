@@ -99,15 +99,15 @@ namespace EDO.Unit
 
         #region Helpers
 
-        public EDObjectCollection CreateObjectCollection(string exp)
+        public HorizontalCollection CreateObjectCollection(string exp)
         {
-            var collection = new EDObjectCollection();
+            var collection = new HorizontalCollection();
             var writer = new ExpressionToEdoObject();
             writer.Convert(collection, exp);
             return collection;
         }
 
-        public EDObjectCollection CreateObjectCollectionSpliting(string exp)
+        public HorizontalCollection CreateObjectCollectionSpliting(string exp)
         {
             var converter = new ExpressionToEdoObject();
             exp = exp.Replace(delimiterMainTokens, delimiterSubTokensOfMainTokens);
@@ -132,7 +132,7 @@ namespace EDO.Unit
             Assert.IsTrue(expressionOutput == expressionOutput2, "Testing creation by array of string :" + test.Description);
         }
 
-        public void ValidateCenaries(TestExpression test, EDObjectCollection collection)
+        public void ValidateCenaries(TestExpression test, HorizontalCollection collection)
         {
             if (string.IsNullOrWhiteSpace(test.OutputNormal))
                 throw new Exception("Output is null");

@@ -12,7 +12,7 @@ namespace EDO
     {
         private List<TokenGroup> results = new List<TokenGroup>();
 
-        public TokenGroup this[EDObject edo]
+        public TokenGroup this[HierarchicalEntity edo]
         {
             get
             {
@@ -38,9 +38,9 @@ namespace EDO
 
     public class TokenGroup : IEnumerable<List<Token>>
     {
-        private readonly Dictionary<EDObject, List<Token>> tokenGroup;
+        private readonly Dictionary<HierarchicalEntity, List<Token>> tokenGroup;
 
-        public EDObject MainEdoObject
+        public HierarchicalEntity MainEdoObject
         {
             get; 
             private set; 
@@ -54,7 +54,7 @@ namespace EDO
             }
         }
 
-        public List<Token> this[EDObject edo]
+        public List<Token> this[HierarchicalEntity edo]
         {
             get
             {
@@ -62,28 +62,28 @@ namespace EDO
             }
         }
 
-        public TokenGroup(EDObject edoObject)
+        public TokenGroup(HierarchicalEntity edoObject)
         {
             this.MainEdoObject = edoObject;
-            this.tokenGroup = new Dictionary<EDObject, List<Token>>();
+            this.tokenGroup = new Dictionary<HierarchicalEntity, List<Token>>();
         }
 
-        public void Add(EDObject addIn, List<Token> listToAdd)
+        public void Add(HierarchicalEntity addIn, List<Token> listToAdd)
         {
             this.GetListOrNew(addIn).AddRange(listToAdd);
         }
 
-        public void Add(EDObject addIn, Token add)
+        public void Add(HierarchicalEntity addIn, Token add)
         {
             this.GetListOrNew(addIn).Add(add);
         }
 
-        public bool ExistsGroup(EDObject edoVerify)
+        public bool ExistsGroup(HierarchicalEntity edoVerify)
         {
             return this.tokenGroup.ContainsKey(edoVerify);
         }
         
-        private List<Token> GetListOrNew(EDObject edoToAdd)
+        private List<Token> GetListOrNew(HierarchicalEntity edoToAdd)
         {
             List<Token> exists;
             if (!this.tokenGroup.ContainsKey(edoToAdd))

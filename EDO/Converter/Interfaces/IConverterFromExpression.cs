@@ -8,7 +8,7 @@ namespace EDO.Converter
 {
     public interface IConverterFromExpression
     {
-        EDObjectCollection Convert(string[] expressions);
-        void Convert(EDObjectCollection collectionToAppy, string[] expressions);
+        HorizontalCollection Convert(string[] expressions);
+        void Convert(HorizontalCollection collectionToAppy, string[] expressions);
     }
 }

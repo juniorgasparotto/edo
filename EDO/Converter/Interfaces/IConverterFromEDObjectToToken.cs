@@ -8,7 +8,7 @@ namespace EDO.Converter
 {
     public interface IConverterFromEDObjectToToken
     {
-        TokenResult Convert(EDObject obj);
-        Dictionary<EDObject, TokenResult> Convert(EDObjectCollection collection);
+        TokenResult Convert(HierarchicalEntity obj);
+        Dictionary<HierarchicalEntity, TokenResult> Convert(HorizontalCollection collection);
     }
 }

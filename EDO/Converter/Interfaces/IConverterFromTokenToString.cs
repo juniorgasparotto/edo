@@ -10,6 +10,6 @@ namespace EDO.Converter
     {
         string Convert(List<Token> tokens);
         string Convert(TokenResult edoObject, string delimiterReferences = null);
-        string Convert(Dictionary<EDObject, TokenResult> collection, string delimiterCollection = null, string delimiterReferences = null);
+        string Convert(Dictionary<HierarchicalEntity, TokenResult> collection, string delimiterCollection = null, string delimiterReferences = null);
     }
 }

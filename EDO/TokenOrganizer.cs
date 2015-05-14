@@ -15,10 +15,10 @@ namespace EDO.Converter
 {
     public class TokenOrganizer
     {
-        public Dictionary<EDObject, List<Token>> Organize(Dictionary<EDObject, TokenResult> collection)
+        public Dictionary<HierarchicalEntity, List<Token>> Organize(Dictionary<HierarchicalEntity, TokenResult> collection)
         {
-            var res = new Dictionary<EDObject, List<Token>>();
-            var organizedChilds = new Dictionary<EDObject, List<EDObject>>();
+            var res = new Dictionary<HierarchicalEntity, List<Token>>();
+            var organizedChilds = new Dictionary<HierarchicalEntity, List<HierarchicalEntity>>();
             foreach (var keyPair in collection)
                 res.Add(keyPair.Key, GetMain(keyPair.Value));
 

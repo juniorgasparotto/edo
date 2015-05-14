@@ -24,9 +24,9 @@ namespace EDO.Converter
             this.delimiterMainTokens = delimiterMainTokens;
         }
         
-        public string Convert(TokenGroupCollection collection, EDObject edoObject = null)
+        public string Convert(TokenGroupCollection collection, HierarchicalEntity edoObject = null)
         {
-            var organizedChilds = new Dictionary<EDObject, List<EDObject>>();
+            var organizedChilds = new Dictionary<HierarchicalEntity, List<HierarchicalEntity>>();
             foreach (var keyPair in collection)
             {
                 foreach (var tokenResult in keyPair)
@@ -36,26 +36,26 @@ namespace EDO.Converter
             return this.GetString(organizedChilds);
         }
 
-        private void OrganizeChildrensAndParents(List<Token> tokens, Dictionary<EDObject, List<EDObject>> organizedChilds, EDObject onlyThis)
+        private void OrganizeChildrensAndParents(List<Token> tokens, Dictionary<HierarchicalEntity, List<HierarchicalEntity>> organizedChilds, HierarchicalEntity onlyThis)
         {
-            var onlyValues = tokens.Where(f => f.TokenValue.Value is EDObject).ToList();
+            var onlyValues = tokens.Where(f => f.TokenValue.Value is HierarchicalEntity).ToList();
             foreach (var token in onlyValues)
             {
-                var value = (EDObject)token.TokenValue.Value;
+                var value = (HierarchicalEntity)token.TokenValue.Value;
 
                 if (onlyThis != null && onlyThis != value)
                     continue;
 
                 if (!organizedChilds.ContainsKey(value))
-                    organizedChilds.Add(value, new List<EDObject>());
+                    organizedChilds.Add(value, new List<HierarchicalEntity>());
 
-                var parent = token.Parent != null ? (EDObject)token.Parent.TokenValue.Value : null;
+                var parent = token.Parent != null ? (HierarchicalEntity)token.Parent.TokenValue.Value : null;
                 if (parent != null && !organizedChilds[value].Contains(parent))
                     organizedChilds[value].Add(parent);
             }
         }
 
-        private string GetString(Dictionary<EDObject, List<EDObject>> organizedChilds)
+        private string GetString(Dictionary<HierarchicalEntity, List<HierarchicalEntity>> organizedChilds)
         {
             StringBuilder strBuilder = new StringBuilder();
             var last = organizedChilds.LastOrDefault();

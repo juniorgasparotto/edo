@@ -21,9 +21,9 @@ namespace EDO
         private static IEnumerable<T> Traverse<T>(IEnumerable<T> source, Func<T, IEnumerable<T>> fnRecurse, List<object> iterateds)
         {
             foreach (T item in source)
-            {
+            {  
                 if (!iterateds.Contains(item))
-                { 
+                {
                     iterateds.Add(item);
 
                     yield return item;
@@ -32,7 +32,6 @@ namespace EDO
 
                     if (seqRecurse != null)
                     {
-
                         //Making Recursive call to Traverse using 
                         //results from the lambda expression
                         foreach (T itemRecurse in Traverse(seqRecurse, fnRecurse, iterateds))

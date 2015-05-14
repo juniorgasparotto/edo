@@ -18,17 +18,17 @@ namespace EDO.Converter
         public string Convert(List<Token> tokens)
         {
             StringBuilder strBuilder = new StringBuilder();
-            Dictionary<EDObject, List<EDObject>> organizedChilds = new Dictionary<EDObject, List<EDObject>>();
-            strBuilder.AppendLine("Main: " + ((EDObject)tokens.FirstOrDefault().TokenValue.Value).Name);
-            var onlyValues = tokens.Where(f => f.TokenValue.Value is EDObject).ToList();
+            Dictionary<HierarchicalEntity, List<HierarchicalEntity>> organizedChilds = new Dictionary<HierarchicalEntity, List<HierarchicalEntity>>();
+            strBuilder.AppendLine("Main: " + ((HierarchicalEntity)tokens.FirstOrDefault().TokenValue.Value).Name);
+            var onlyValues = tokens.Where(f => f.TokenValue.Value is HierarchicalEntity).ToList();
             foreach (var token in onlyValues)
             {
-                var value = (EDObject)token.TokenValue.Value;
+                var value = (HierarchicalEntity)token.TokenValue.Value;
                 if (!organizedChilds.ContainsKey(value))
-                    organizedChilds.Add(value, new List<EDObject>());
+                    organizedChilds.Add(value, new List<HierarchicalEntity>());
 
                 if (token.Parent != null)
-                    organizedChilds[value].Add((EDObject)token.Parent.TokenValue.Value);
+                    organizedChilds[value].Add((HierarchicalEntity)token.Parent.TokenValue.Value);
             }
 
 
@@ -62,7 +62,7 @@ namespace EDO.Converter
             return Helper.TrimAll(strBuilder.ToString());
         }
 
-        public string Convert(Dictionary<EDObject, TokenResult> collection, string delimiterCollection = null, string delimiterReferences = null)
+        public string Convert(Dictionary<HierarchicalEntity, TokenResult> collection, string delimiterCollection = null, string delimiterReferences = null)
         {
             delimiterCollection = string.IsNullOrEmpty(delimiterCollection) ? "\r\n" : delimiterCollection;
             var strBuilder = new StringBuilder();
