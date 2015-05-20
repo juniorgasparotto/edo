@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NCalc;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.Diagnostics;
 using EDO.Converter;
 
@@ -34,7 +29,7 @@ namespace EDO.Converter
             {
                 if (token is TokenRecursive)
                 {
-                    strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Name);
+                    strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Identity);
                 }
                 else
                 {
@@ -46,7 +41,7 @@ namespace EDO.Converter
                     }
                     else if (token.TokenValue.Value is HierarchicalEntity)
                     { 
-                        strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Name);
+                        strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Identity);
                     }
                 }
             }

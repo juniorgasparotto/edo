@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NCalc;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.Diagnostics;
 using EDO.Converter;
 
@@ -65,9 +60,9 @@ namespace EDO.Converter
                     strBuilder.AppendLine(noReferenceLabel);
                 else
                     foreach (var parent in child.Value)
-                        strBuilder.AppendLine(parent.Name);
+                        strBuilder.AppendLine(parent.Identity);
 
-                strBuilder.Append("..." + child.Key.Name);
+                strBuilder.Append("..." + child.Key.Identity);
                 if (child.GetHashCode() != last.GetHashCode())
                     strBuilder.Append(delimiterMainTokens);
             }

@@ -33,30 +33,30 @@ namespace EDO.Unit
             var tests = database.TestExpressions.Where(f => f.HasUpdatedByCode != 1).ToList();
             foreach (var test in tests)
             {
-                var collection = CreateObjectCollection(test.Input);
+                var root = CreateRoot(test.Input);
 
-                var convertToToken = new EdoObjectToToken(TokenizeType.Normal);
-                //var test2 = new TokenOrganizer().Organize(convertToToken.Convert(collection));
+                var convertToToken = new HierarchicalEntityToToken(TokenizeType.Normal);
+                //var test2 = new TokenOrganizer().Organize(convertToToken.Convert(root));
 
-                test.OutputNormal = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(convertToToken.Convert(collection));
+                test.OutputNormal = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(convertToToken.Convert(root.Descendants()));
 
-                var convertToToken2 = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken);
-                test.OutputAwaysRepeatDefinedToken = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(convertToToken2.Convert(collection));
+                var convertToToken2 = new HierarchicalEntityToToken(TokenizeType.AwaysRepeatDefinedToken);
+                test.OutputAwaysRepeatDefinedToken = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(convertToToken2.Convert(root.Descendants()));
 
-                var convertToToken3 = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
-                test.OutputNeverRepeatDefinedTokenIfAlreadyParsed = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(convertToToken3.Convert(collection));
+                var convertToToken3 = new HierarchicalEntityToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
+                test.OutputNeverRepeatDefinedTokenIfAlreadyParsed = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(convertToToken3.Convert(root.Descendants()));
 
-                test.OutputHierarchyNormal = new TokenToHierarchy(test.IgnoreSubTokens()).Convert(new EdoObjectToToken(TokenizeType.Normal).Convert(collection));
-                test.OutputHierarchyAwaysRepeatDefinedToken = new TokenToHierarchy(test.IgnoreSubTokens()).Convert(new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(collection));
-                test.OutputHierarchyNeverRepeatDefinedTokenIfAlreadyParsed = (new TokenToHierarchy(test.IgnoreSubTokens())).Convert(new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(collection));
+                test.OutputHierarchyNormal = new TokenToHierarchy(test.IgnoreSubTokens()).Convert(new HierarchicalEntityToToken(TokenizeType.Normal).Convert(root.Descendants()));
+                test.OutputHierarchyAwaysRepeatDefinedToken = new TokenToHierarchy(test.IgnoreSubTokens()).Convert(new HierarchicalEntityToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(root.Descendants()));
+                test.OutputHierarchyNeverRepeatDefinedTokenIfAlreadyParsed = (new TokenToHierarchy(test.IgnoreSubTokens())).Convert(new HierarchicalEntityToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(root.Descendants()));
 
-                test.OutputHierarchyInverseNormal = new TokenToHierarchyInverse().Convert(new EdoObjectToToken(TokenizeType.Normal).Convert(collection));
-                test.OutputHierarchyInverseAwaysRepeatDefinedToken = new TokenToHierarchyInverse().Convert(new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(collection));
-                test.OutputHierarchyInverseNeverRepeatDefinedTokenIfAlreadyParsed = new TokenToHierarchyInverse().Convert(new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(collection));
+                test.OutputHierarchyInverseNormal = new TokenToHierarchyInverse().Convert(new HierarchicalEntityToToken(TokenizeType.Normal).Convert(root.Descendants()));
+                test.OutputHierarchyInverseAwaysRepeatDefinedToken = new TokenToHierarchyInverse().Convert(new HierarchicalEntityToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(root.Descendants()));
+                test.OutputHierarchyInverseNeverRepeatDefinedTokenIfAlreadyParsed = new TokenToHierarchyInverse().Convert(new HierarchicalEntityToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(root.Descendants()));
 
-                test.OutputDebugNormal = new TokenToDebug(test.IgnoreSubTokens()).Convert(new EdoObjectToToken(TokenizeType.Normal).Convert(collection));
-                test.OutputDebugAwaysRepeatDefinedToken = new TokenToDebug(test.IgnoreSubTokens()).Convert(new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(collection));
-                test.OutputDebugNeverRepeatDefinedTokenIfAlreadyParsed = new TokenToDebug(test.IgnoreSubTokens()).Convert(new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(collection));
+                test.OutputDebugNormal = new TokenToDebug(test.IgnoreSubTokens()).Convert(new HierarchicalEntityToToken(TokenizeType.Normal).Convert(root.Descendants()));
+                test.OutputDebugAwaysRepeatDefinedToken = new TokenToDebug(test.IgnoreSubTokens()).Convert(new HierarchicalEntityToToken(TokenizeType.AwaysRepeatDefinedToken).Convert(root.Descendants()));
+                test.OutputDebugNeverRepeatDefinedTokenIfAlreadyParsed = new TokenToDebug(test.IgnoreSubTokens()).Convert(new HierarchicalEntityToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed).Convert(root.Descendants()));
 
                 test.HasUpdatedByCode = 1;
             }
@@ -65,17 +65,17 @@ namespace EDO.Unit
         }
 
         [TestMethod]
-        public void TestMultiplesExpressionsFAILURE()
+        public void TestMultiplesUsingDataBaseWithSpliting()
         {
             var init = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
             foreach (var test in testsExpressions)
             {
-                var collection = CreateObjectCollectionSpliting(test.OutputNormal);
-                this.ValidateCenaries(test, collection);
-                collection = CreateObjectCollectionSpliting(test.OutputAwaysRepeatDefinedToken);
-                this.ValidateCenaries(test, collection);
-                collection = CreateObjectCollectionSpliting(test.OutputNeverRepeatDefinedTokenIfAlreadyParsed);
-                this.ValidateCenaries(test, collection);
+                var root = CreateRootWithSpliting(test.OutputNormal);
+                this.ValidateCenaries(test, root);
+                root = CreateRootWithSpliting(test.OutputAwaysRepeatDefinedToken);
+                this.ValidateCenaries(test, root);
+                root = CreateRootWithSpliting(test.OutputNeverRepeatDefinedTokenIfAlreadyParsed);
+                this.ValidateCenaries(test, root);
             }
 
             var end = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
@@ -87,8 +87,8 @@ namespace EDO.Unit
             var init = DateTime.Now.ToString("{0:MM/dd/yyy hh:mm:ss.fff}");
             foreach (var test in testsExpressions)
             {
-                var collection = CreateObjectCollection(test.Input);
-                this.ValidateCenaries(test, collection);
+                var root = CreateRoot(test.Input);
+                this.ValidateCenaries(test, root);
                 this.ValidateExpressionArray(test, TokenizeType.Normal, test.OutputNormal);
                 this.ValidateExpressionArray(test, TokenizeType.AwaysRepeatDefinedToken, test.OutputAwaysRepeatDefinedToken);
                 this.ValidateExpressionArray(test, TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed, test.OutputNeverRepeatDefinedTokenIfAlreadyParsed);
@@ -99,17 +99,17 @@ namespace EDO.Unit
 
         #region Helpers
 
-        public HorizontalCollection CreateObjectCollection(string exp)
+        public HierarchicalEntity CreateRoot(string exp)
         {
-            var collection = new HorizontalCollection();
-            var writer = new ExpressionToEdoObject();
-            writer.Convert(collection, exp);
-            return collection;
+            var root = new HierarchicalEntity("root");
+            var writer = new ExpressionToHierarchicalEntity();
+            writer.Convert(root, exp);
+            return root;
         }
 
-        public HorizontalCollection CreateObjectCollectionSpliting(string exp)
+        public HierarchicalEntity CreateRootWithSpliting(string exp)
         {
-            var converter = new ExpressionToEdoObject();
+            var converter = new ExpressionToHierarchicalEntity();
             exp = exp.Replace(delimiterMainTokens, delimiterSubTokensOfMainTokens);
             var split = exp.Split(new string[] { delimiterSubTokensOfMainTokens }, StringSplitOptions.None);
             return converter.Convert(split);
@@ -117,22 +117,22 @@ namespace EDO.Unit
 
         public void ValidateExpressionArray(TestExpression test, TokenizeType type, string strInputTest)
         {
-            var converterToken = new EdoObjectToToken(type);
+            var converterToken = new HierarchicalEntityToToken(type);
             var converterExpression = new TokenToExpression(test.IgnoreSubTokens());
 
-            var collection = CreateObjectCollection(test.Input);
-            var tokensCollection = converterToken.Convert(collection);
-            var edoMain = collection.Contains(test.ObjectMain);
+            var root = CreateRoot(test.Input);
+            var tokensCollection = converterToken.Convert(root.Descendants());
+            var edoMain = root.FindHierarchically(test.ObjectMain);
             var expressionOutput = converterExpression.Convert(tokensCollection[edoMain][edoMain]);
 
-            var collection2 = CreateObjectCollectionSpliting(strInputTest);
-            var edoMain2 = collection2.Contains(test.ObjectMain);
-            var tokensCollection2 = converterToken.Convert(collection2);
+            var root2 = CreateRootWithSpliting(strInputTest);
+            var edoMain2 = root2.FindHierarchically(test.ObjectMain);
+            var tokensCollection2 = converterToken.Convert(root2.Descendants());
             var expressionOutput2 = converterExpression.Convert(tokensCollection2[edoMain2].MainTokens);
             Assert.IsTrue(expressionOutput == expressionOutput2, "Testing creation by array of string :" + test.Description);
         }
 
-        public void ValidateCenaries(TestExpression test, HorizontalCollection collection)
+        public void ValidateCenaries(TestExpression test, HierarchicalEntity root)
         {
             if (string.IsNullOrWhiteSpace(test.OutputNormal))
                 throw new Exception("Output is null");
@@ -147,16 +147,16 @@ namespace EDO.Unit
             //output = output.Replace("+", " + ");
             //output = output.Replace("-", " - ");
 
-            var converterNormal = new EdoObjectToToken(TokenizeType.Normal);
-            var tokensNormal = converterNormal.Convert(collection);
+            var converterNormal = new HierarchicalEntityToToken(TokenizeType.Normal);
+            var tokensNormal = converterNormal.Convert(root.Descendants());
             var normal = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(tokensNormal);
             
-            var converterAwaysRepeat = new EdoObjectToToken(TokenizeType.AwaysRepeatDefinedToken);
-            var tokensAwaysRepeat = converterAwaysRepeat.Convert(collection);
+            var converterAwaysRepeat = new HierarchicalEntityToToken(TokenizeType.AwaysRepeatDefinedToken);
+            var tokensAwaysRepeat = converterAwaysRepeat.Convert(root.Descendants());
             var awaysRepeat = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(tokensAwaysRepeat);
 
-            var converterNeverRepeat = new EdoObjectToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
-            var tokensNeverRepeat = converterNeverRepeat.Convert(collection);
+            var converterNeverRepeat = new HierarchicalEntityToToken(TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
+            var tokensNeverRepeat = converterNeverRepeat.Convert(root.Descendants());
             var neverRepeat = (new TokenToExpression(test.IgnoreSubTokens(), delimiterMainTokens)).Convert(tokensNeverRepeat);
 
             Assert.IsTrue(test.OutputNormal == normal, "Test expression: compare output normal - " + test.Description);

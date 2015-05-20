@@ -25,11 +25,11 @@ Hierarchy inverse:
 
 Debug:
 
-   A hashcode: 20943880 level: 1 hashcodeValue: 36726079
-   + hashcode: 16687669 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 6804828
-   B hashcode: 13463999 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 28405935
-   + hashcode: 44386665 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 6804828
-   C hashcode: 31693893 parent: (hashcode: 20943880; value: A) level: 2 hashcodeValue: 31823364
+   A hashcode: 28632368 level: 1 hashcodeValue: 52764691
+   + hashcode: 6136542 parent: (hashcode: 28632368; value: A) level: 2 hashcodeValue: 3644291
+   B hashcode: 25725492 parent: (hashcode: 28632368; value: A) level: 2 hashcodeValue: 12319110
+   + hashcode: 53153919 parent: (hashcode: 28632368; value: A) level: 2 hashcodeValue: 3644291
+   C hashcode: 20537967 parent: (hashcode: 28632368; value: A) level: 2 hashcodeValue: 21707284
 
 -> Print all objects:
 
@@ -71,20 +71,20 @@ Hierarchy Inverse:
 
 Debug:
 
-   A hashcode: 29792780 level: 1 hashcodeValue: 28591051
-   + hashcode: 51235950 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 6804828
-   B hashcode: 16681963 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 13252863
-   + hashcode: 20593887 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 6804828
-   C hashcode: 23776317 parent: (hashcode: 29792780; value: A) level: 2 hashcodeValue: 7308509
+   A hashcode: 65232958 level: 1 hashcodeValue: 64809238
+   + hashcode: 49131580 parent: (hashcode: 65232958; value: A) level: 2 hashcodeValue: 3644291
+   B hashcode: 5929149 parent: (hashcode: 65232958; value: A) level: 2 hashcodeValue: 18051934
+   + hashcode: 63941793 parent: (hashcode: 65232958; value: A) level: 2 hashcodeValue: 3644291
+   C hashcode: 17036122 parent: (hashcode: 65232958; value: A) level: 2 hashcodeValue: 26356753
    -----
-   B hashcode: 1034016 level: 1 hashcodeValue: 38258595
-   + hashcode: 6281888 parent: (hashcode: 1034016; value: B) level: 2 hashcodeValue: 6804828
-   C hashcode: 31103298 parent: (hashcode: 1034016; value: B) level: 2 hashcodeValue: 9971364
+   B hashcode: 44232281 level: 1 hashcodeValue: 25981688
+   + hashcode: 21798366 parent: (hashcode: 44232281; value: B) level: 2 hashcodeValue: 3644291
+   C hashcode: 1233209 parent: (hashcode: 44232281; value: B) level: 2 hashcodeValue: 45628743
    -----
-   C hashcode: 18191832 level: 1 hashcodeValue: 2009176
-   + hashcode: 7230683 parent: (hashcode: 18191832; value: C) level: 2 hashcodeValue: 6804828
-   D hashcode: 66208710 parent: (hashcode: 18191832; value: C) level: 2 hashcodeValue: 33803196
+   C hashcode: 3464410 level: 1 hashcodeValue: 61074314
+   + hashcode: 45157110 parent: (hashcode: 3464410; value: C) level: 2 hashcodeValue: 3644291
+   D hashcode: 60200336 parent: (hashcode: 3464410; value: C) level: 2 hashcodeValue: 12819932
    -----
-   D hashcode: 17734871 level: 1 hashcodeValue: 52210460
+   D hashcode: 22655468 level: 1 hashcodeValue: 32945967
 
 

@@ -8,15 +8,15 @@ using System.Text.RegularExpressions;
 
 namespace EDO
 {
-    public class UniqueEntityList : List<HierarchicalEntity>
+    public class UniqueIdentityList : List<HierarchicalEntity>
     {
         private bool ValidateAdd(HierarchicalEntity obj)
         {
             var exists = this.Exists(f => f == obj);
             if (!exists)
             {
-                if (this.Exists(f => f.Name == obj.Name))
-                    throw new EntityAlreadyExistsException(string.Format("Object '{0}' already exists in collection", obj.Name));
+                if (this.Exists(f => f.Identity == obj.Identity))
+                    throw new EntityAlreadyExistsException(string.Format("Object '{0}' already exists in the list", obj.Identity));
             }
 
             return !exists;

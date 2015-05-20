@@ -37,16 +37,16 @@ namespace EDO.Unit
                     var strBuilder = new StringBuilder();
                     var expressionInput = test.Input;
                     var main = test.ObjectMain;
-                    var collection = EdoUtils.ToEdoObjectCollection(expressionInput);
-                    var edo = EdoUtils.ToEdoObject(expressionInput);
+                    var root = EdoUtils.ToHierarchicalEntity(expressionInput);
+                    var edo = EdoUtils.ToHierarchicalEntityAndGetFirst(expressionInput);
                     var expressionOutputEdo = EdoUtils.ToExpression(edo, type);
                     var hierarchyOutputEdo = EdoUtils.ToHierarchy(edo, type);
                     var hierarchyInverseOutputEdo = EdoUtils.ToHierarchyInverse(edo, type);
                     var debugOutputEdo = EdoUtils.ToDebug(edo, type);
-                    var expressionOutputCollection = EdoUtils.ToExpression(collection, type);
-                    var hierarchyOutputCollection = EdoUtils.ToHierarchy(collection, type);
-                    var hierarchyInverseOutputCollection = EdoUtils.ToHierarchyInverse(collection, type);
-                    var debugOutputCollection = EdoUtils.ToDebug(collection, type);
+                    var expressionOutputRoot = EdoUtils.ToExpression(root.Descendants(), type);
+                    var hierarchyOutputRoot = EdoUtils.ToHierarchy(root.Descendants(), type);
+                    var hierarchyInverseOutputRoot = EdoUtils.ToHierarchyInverse(root.Descendants(), type);
+                    var debugOutputRoot = EdoUtils.ToDebug(root.Descendants(), type);
 
                     strBuilder.AppendLine("-> Input");
                     strBuilder.AppendLine();
@@ -78,19 +78,19 @@ namespace EDO.Unit
                     strBuilder.AppendLine();
                     strBuilder.AppendLine("Expression:");
                     strBuilder.AppendLine();
-                    strBuilder.AppendLine(Indent(expressionOutputCollection, 3));
+                    strBuilder.AppendLine(Indent(expressionOutputRoot, 3));
                     strBuilder.AppendLine();
                     strBuilder.AppendLine("Hierarchy:");
                     strBuilder.AppendLine();
-                    strBuilder.AppendLine(Indent(hierarchyOutputCollection, 3));
+                    strBuilder.AppendLine(Indent(hierarchyOutputRoot, 3));
                     strBuilder.AppendLine();
                     strBuilder.AppendLine("Hierarchy Inverse:");
                     strBuilder.AppendLine();
-                    strBuilder.AppendLine(Indent(hierarchyInverseOutputCollection, 3));
+                    strBuilder.AppendLine(Indent(hierarchyInverseOutputRoot, 3));
                     strBuilder.AppendLine();
                     strBuilder.AppendLine("Debug:");
                     strBuilder.AppendLine();
-                    strBuilder.AppendLine(Indent(debugOutputCollection, 3));
+                    strBuilder.AppendLine(Indent(debugOutputRoot, 3));
                     strBuilder.AppendLine();
 
                     string executable = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -106,10 +106,11 @@ namespace EDO.Unit
                     var directory = path + string.Format("Tests/Output/{0}", test.Id.ToString());
                     var filename = directory + string.Format("/{0}.txt", nameFile);
 
-                    // Create output if not exists
-                    if (!Directory.Exists(directory))
+                    if (!File.Exists(filename))
                     {
-                        Directory.CreateDirectory(directory);
+                        // Create output if not exists
+                        if (!Directory.Exists(directory))
+                            Directory.CreateDirectory(directory);
 
                         System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
                         file.WriteLine(strBuilder.ToString());

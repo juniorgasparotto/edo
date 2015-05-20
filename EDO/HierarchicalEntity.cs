@@ -8,65 +8,105 @@ namespace EDO
 {
     public class HierarchicalEntity
     {
-        public string Name { get; private set; }
-        public UniqueEntityList References { get; private set; }
-        public UniqueEntityList Parents { get; private set; }
+        public UniqueIdentityList parents;
+        public UniqueIdentityList children;
 
-        public HierarchicalEntity(string name)
+        public string Identity { get; private set; }
+
+        public List<HierarchicalEntity> Children 
         {
-            this.Name = name;
-            this.References = new UniqueEntityList();
-            this.Parents = new UniqueEntityList();
+            get
+            {
+                return children.ToList();
+            }
         }
 
-        public void Add(HierarchicalEntity obj)
+        public List<HierarchicalEntity> Parents
         {
-            this.ValidateAdd(obj);
-            this.References.Add(obj);
-            obj.Parents.Add(this);
+            get
+            {
+                return parents.ToList();
+            }
         }
 
-        public void Remove(HierarchicalEntity obj)
+        public HierarchicalEntity(string id)
         {
-            if (this.References.Remove(obj))
-                obj.Parents.Remove(this);
+            this.Identity = id;
+            this.children = new UniqueIdentityList();
+            this.parents = new UniqueIdentityList();
         }
 
-        public bool ExistsHierarchically(string name)
+        public void AddChild(HierarchicalEntity obj)
         {
-            if (this.FindHierarchically(name) != null)
+            //this.ValidateAdd(obj);
+            this.children.Add(obj);
+            obj.parents.Add(this);
+        }
+
+        public void RemoveChild(HierarchicalEntity obj)
+        {
+            if (this.children.Remove(obj))
+                obj.parents.Remove(this);
+        }
+
+        public bool ExistsHierarchically(string id)
+        {
+            if (this.FindHierarchically(id) != null)
                 return true;
 
             return false;
         }
 
-        public HierarchicalEntity FindHierarchically(string name)
+        public HierarchicalEntity FindHierarchically(string id)
         {
-            var allToName = this.References.Traverse(f => f.References);
-            var b = allToName.FirstOrDefault(f => f.IdentityIsEquals(name));
-            return b;
+            return this.Descendants().FirstOrDefault(f => f.IdentityIsEquals(id));
+        }
+
+        public List<HierarchicalEntity> Descendants()
+        {
+            return this.Children.Traverse(f => f.Children).ToList();
+        }
+
+        public List<HierarchicalEntity> DescendantsAndThis()
+        {
+            var list = this.Descendants();
+            if (!list.Contains(this))
+                list.Add(this);
+            return list;
         }
 
         public bool IdentityIsEquals(string name)
         {
-            if (this.Name == name)
+            if (this.Identity == name)
                 return true;
 
             return false;
         }
 
-        private void ValidateAdd(HierarchicalEntity obj)
-        {
-            var found = this.FindHierarchically(obj.Name);
-            if (found != null && obj != found)
-                throw new EntityAlreadyExistsException(string.Format("Object '{0}' already exists directly or indirectly.", obj.Name));
-        }
+        //private void ValidateAdd(HierarchicalEntity obj)
+        //{
+        //    var found = this.FindHierarchically(obj.Identity);
+        //    if (found != null && obj != found)
+        //        throw new EntityAlreadyExistsException(string.Format("Object '{0}' already exists directly or indirectly.", obj.Identity));
+        //}
 
-        public HorizontalCollection ToHorizontalCollection()
+        public void Validate()
         {
-            var list = new HorizontalCollection();
-            list.Add(this);
-            return list;
+            var validateIdDuplicated = new UniqueIdentityList();
+            var listToValidade = this.DescendantsAndThis();
+            foreach (var item in listToValidade)
+            {
+                try
+                {
+                    validateIdDuplicated.Add(item);
+                    validateIdDuplicated.AddRange(item.Children.Traverse(f => f.Children));
+                }
+                catch(EntityAlreadyExistsException ex)
+                {
+                    validateIdDuplicated.Clear();
+                    throw ex;
+                }
+            }
         }
     }
 }

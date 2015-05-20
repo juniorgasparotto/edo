@@ -18,27 +18,27 @@ namespace EDO.Unit
         public void TestMinus()
         {
             var type = TokenizeType.Normal;
-            var convertToEdo = new ExpressionToEdoObject();
-            var converterToken = new EdoObjectToToken(type);
+            var convertToEdo = new ExpressionToHierarchicalEntity();
+            var converterToken = new HierarchicalEntityToToken(type);
 
             var expressionInput = "A + (B + (C + D)) + (C - D)";
-            var collection = convertToEdo.Convert(expressionInput);
-            var tokensCollection = converterToken.Convert(collection);
+            var root = convertToEdo.Convert(expressionInput);
+            var tokensCollection = converterToken.Convert(root.Descendants());
 
             //Test1
-            var edo = collection.Contains("A");
-            var expressionOutput = GetExpression(edo, type);
+            var edo = root.FindHierarchically("A");
+            var expressionOutput = GetExpressionWithThisInclude(edo, type);
             Assert.IsTrue(expressionOutput == "A + (B + C) + C", "Teste 1");
 
             //Test2
-            convertToEdo.Convert(collection, "B-C");
-            expressionOutput = GetExpression(edo, type);
+            convertToEdo.Convert(root, "B-C");
+            expressionOutput = GetExpressionWithThisInclude(edo, type);
             Assert.IsTrue(expressionOutput == "A + B + C", "Teste 2");
 
             //Test3 using EdoUtils
-            //convertToEdo.Convert(collection, "A+Y+Z+J; A-Y; ".Split(';'));
+            //convertToEdo.Convert(root, "A+Y+Z+J; A-Y; ".Split(';'));
             EdoUtils.ApplyExpression(edo, "A+Y+Z+J; A-Y; ".Split(';'));
-            expressionOutput = GetExpression(edo, type);
+            expressionOutput = GetExpressionWithThisInclude(edo, type);
             Assert.IsTrue(expressionOutput == "A + B + C + Z + J", "Teste 3 using EdoUtils");
         }
 
@@ -46,43 +46,43 @@ namespace EDO.Unit
         public void TestIntegrityCollections()
         {
             var type = TokenizeType.Normal;
-            var convertToEdo = new ExpressionToEdoObject();
-            var converterToken = new EdoObjectToToken(type);
+            var convertToEdo = new ExpressionToHierarchicalEntity();
+            var converterToken = new HierarchicalEntityToToken(type);
 
-            // Test create collection by expression
+            // Test create root by expression
             var expressionInput = "A + (B + (C + D)) + C";
-            var collection = convertToEdo.Convert(expressionInput);
+            var root = convertToEdo.Convert(expressionInput);
 
             // Basic test object 'A'
-            var edoA = collection.Contains("A");            
-            var edoB = collection.Contains("B");
-            var edoC = collection.Contains("C");
-            var edoD = collection.Contains("D");
+            var edoA = root.FindHierarchically("A");            
+            var edoB = root.FindHierarchically("B");
+            var edoC = root.FindHierarchically("C");
+            var edoD = root.FindHierarchically("D");
 
-            var expressionOutput = GetExpression(edoA, type);
+            var expressionOutput = GetExpressionWithThisInclude(edoA, type);
             Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C", "Teste 1");
-            Assert.IsTrue(EdoUtils.ToExpression(edoB) == "B + (C + D)");
-            Assert.IsTrue(EdoUtils.ToExpression(edoC) == "C + D");
-            Assert.IsTrue(EdoUtils.ToExpression(edoD) == "D");
+            Assert.IsTrue(EdoUtils.ToExpression(edoB.DescendantsAndThis()) == "B + (C + D)");
+            Assert.IsTrue(EdoUtils.ToExpression(edoC.DescendantsAndThis()) == "C + D");
+            Assert.IsTrue(EdoUtils.ToExpression(edoD.DescendantsAndThis()) == "D");
 
-            // Test new collection and add exists object "D"
-            var newCollection = EdoUtils.ApplyExpression(edoA, "A+D; ".Split(';'));
-            expressionOutput = GetExpression(newCollection, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
-            Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C + D", "Test new collection deriveted the object A");
+            // Test add exists object "D"
+            EdoUtils.ApplyExpression(edoA, "A+D; ".Split(';'));
+            expressionOutput = GetExpressionWithThisInclude(edoA, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
+            Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C + D", "Test new root deriveted the object A");
 
             // Test remove 'A'
-            collection.Remove(edoA);
-            expressionOutput = GetExpression(collection, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
-            Assert.IsTrue(expressionOutput == "B + (C + D)", "Teste remove collection");
+            root.RemoveChild(edoA);
+            expressionOutput = GetExpressionWithThisInclude(root, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
+            Assert.IsTrue(expressionOutput == "B + (C + D)", "Teste remove A of root");
 
             // Test add again
-            collection.Add(edoA);
-            expressionOutput = GetExpression(collection, type);
+            root.AddChild(edoA);
+            expressionOutput = GetExpressionWithThisInclude(root, type);
             Assert.IsTrue(expressionOutput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D", "Teste add again");
             
             try
             {
-                edoA.Add(new HierarchicalEntity("D"));
+                edoA.AddChild(new HierarchicalEntity("D"));
             }
             catch(EntityAlreadyExistsException ex)
             {
@@ -90,21 +90,21 @@ namespace EDO.Unit
             }
 
             var y = new HierarchicalEntity("Y");
-            edoA.Add(y);
+            edoA.AddChild(y);
             EdoUtils.ApplyExpression(y, "Y+Z+J");
 
-            expressionInput = EdoUtils.ToExpression(edoA);
+            expressionInput = EdoUtils.ToExpression(edoA.DescendantsAndThis());
             Assert.IsTrue(expressionInput == "A + (B + (C + D)) + C + D + (Y + Z + J)");
 
             EdoUtils.ApplyExpression(edoA, "A+Z");
-            expressionInput = EdoUtils.ToExpression(edoA);
+            expressionInput = EdoUtils.ToExpression(edoA.DescendantsAndThis());
             Assert.IsTrue(expressionInput == "A + (B + (C + D)) + C + D + (Y + Z + J) + Z");
 
             // New 'J' directly o.AddReference            
             try
             {
                 var j = new HierarchicalEntity("J");
-                edoA.Add(j);
+                edoA.AddChild(j);
             }
             catch (EntityAlreadyExistsException ex)
             {
@@ -116,59 +116,40 @@ namespace EDO.Unit
 
             try
             {
-                expressionInput = EdoUtils.ToExpression(edoA);
+                expressionInput = EdoUtils.ToExpression(edoA.Descendants());
             }
             catch (EntityAlreadyExistsException ex)
             {
-                Assert.IsTrue(ex.Message == "Object 'B' already exists in collection", "Expected error 3");
+                Assert.IsTrue(ex.Message == "Object 'B' already exists in the list", "Expected error 3");
             }
 
             try
             {
-                expressionInput = EdoUtils.ToExpression(collection);
+                expressionInput = EdoUtils.ToExpression(root.Descendants());
             }
             catch (EntityAlreadyExistsException ex)
             {
-                Assert.IsTrue(ex.Message == "Object 'B' already exists in collection", "Expected error 4");
-            }
-            
-            try
-            {
-                var a = collection.FirstOrDefault(f=>f.Name == "B");
-            }
-            catch (InvalidatedCollectionException ex)
-            {
-                Assert.IsTrue(ex.Message == "The collection is invalidated. Please corrected it or create another.", "Expected error 5");
+                Assert.IsTrue(ex.Message == "Object 'B' already exists in the list", "Expected error 4");
             }
 
-            // Saving collection
-            y.Remove(y.FindHierarchically("B"));
-            expressionInput = EdoUtils.ToExpression(collection);
+            // Saving root
+            y.RemoveChild(y.FindHierarchically("B"));
+            expressionInput = EdoUtils.ToExpression(root.Descendants());
             Assert.IsTrue(expressionInput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D + (Y + Z + J) + Z\r\nY + Z + J\r\nZ\r\nJ", "Test");
             
             EdoUtils.ApplyExpression(y, "Y + L");
-            collection.Refresh();
-            expressionInput = EdoUtils.ToExpression(collection);
+            expressionInput = EdoUtils.ToExpression(root.Descendants());
             Assert.IsTrue(expressionInput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D + (Y + Z + J + L) + Z\r\nL\r\nY + Z + J + L\r\nZ\r\nJ", "Test");
-            
-            try
-            {
-                collection.Remove(edoB);
-            }
-            catch (RemoveDeniedException ex)
-            {
-                Assert.IsTrue(ex.Message == "Unable to remove the object 'B' because it is being used by the object 'A' directly or indirectly.", "Expected error 6");
-            }
         }
 
         [TestMethod]
         public void TestParseTokens()
         {
             var expressionInput = "A + (B + (C + D)) + C";
-            var collection = CreateObjectCollection(expressionInput);
-            var converterToken = new EdoObjectToToken(TokenizeType.Normal);
-            var edoTest = collection.Contains("A");
-            var tokenResult = converterToken.Convert(edoTest);
+            var root = CreateRoot(expressionInput);
+            var converterToken = new HierarchicalEntityToToken(TokenizeType.Normal);
+            var edoTest = root.FindHierarchically("A");
+            var tokenResult = converterToken.Convert(edoTest.DescendantsAndThis());
             var tokens = tokenResult[edoTest].MainTokens.ToList();
 
             Assert.IsTrue(tokens[0].TokenValue.ToString() == "A");
@@ -236,19 +217,19 @@ namespace EDO.Unit
         public void TestUniqueExpression()
         {
             var expressionInput = "A + (B + (C + D)) + C";
-            var collection = CreateObjectCollection(expressionInput);
-            var converterToken = new EdoObjectToToken(TokenizeType.Normal);
+            var root = CreateRoot(expressionInput);
+            var converterToken = new HierarchicalEntityToToken(TokenizeType.Normal);
 
             // Tanto faz se ira ignorar ou não os subtokens, pois abaixo trabalha diretament com os tokens
             var converterExpression = new TokenToExpression();
-            var tokensCollection = converterToken.Convert(collection);
+            var tokensCollection = converterToken.Convert(root.Descendants());
 
-            var edoMain = collection.Contains("A");
+            var edoMain = root.FindHierarchically("A");
             var expressionOutput = converterExpression.Convert(tokensCollection[edoMain].MainTokens);
             Assert.IsTrue(expressionInput == expressionOutput);
 
             // Other method override and the same instances
-            tokensCollection = converterToken.Convert(edoMain);
+            tokensCollection = converterToken.Convert(edoMain.DescendantsAndThis());
 
             var expressionOutput2 = converterExpression.Convert(tokensCollection[edoMain].MainTokens);
             Assert.IsTrue(expressionInput == expressionOutput2);
@@ -256,28 +237,20 @@ namespace EDO.Unit
 
         #region Helpers
 
-        public HorizontalCollection CreateObjectCollection(string exp)
+        public HierarchicalEntity CreateRoot(string exp)
         {
-            var collection = new HorizontalCollection();
-            var writer = new ExpressionToEdoObject();
-            writer.Convert(collection, exp);
-            return collection;
+            var root = new HierarchicalEntity("root");
+            var writer = new ExpressionToHierarchicalEntity();
+            writer.Convert(root, exp);
+            return root;
         }
 
-        public string GetExpression(HierarchicalEntity edo, TokenizeType type)
+        public string GetExpressionWithThisInclude(HierarchicalEntity edo, TokenizeType type)
         {
-            var converterToken = new EdoObjectToToken(type);
-            var tokens = converterToken.Convert(edo);
+            var converterToken = new HierarchicalEntityToToken(type);
+            var tokens = converterToken.Convert(edo.DescendantsAndThis());
             var converterExpression = new TokenToExpression();
             return converterExpression.Convert(tokens[edo].MainTokens);
-        }
-
-        public string GetExpression(HorizontalCollection collection, TokenizeType type)
-        {
-            var converterToken = new EdoObjectToToken(type);
-            var tokens = converterToken.Convert(collection);
-            var converterExpression = new TokenToExpression();
-            return converterExpression.Convert(tokens);
         }
 
         #endregion

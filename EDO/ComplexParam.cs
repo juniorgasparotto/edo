@@ -17,14 +17,14 @@ namespace EDO
         object IOperations.Add(object b)
         {
             var p = (ObjectParamExpression)b;
-            this.Object.Add(p.Object);
+            this.Object.AddChild(p.Object);
             return this;
         }
 
         object IOperations.Soustract(object b)
         {
             var p = (ObjectParamExpression)b;
-            this.Object.Remove(p.Object);
+            this.Object.RemoveChild(p.Object);
             return this;
         }
 

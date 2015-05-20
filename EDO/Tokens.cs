@@ -52,7 +52,7 @@ namespace EDO
             else if (this is TokenValueCloseParenthesis)
                 res = ")";
             else
-                res = ((HierarchicalEntity)this.Value).Name;
+                res = ((HierarchicalEntity)this.Value).Identity;
 
             return res;
         }
