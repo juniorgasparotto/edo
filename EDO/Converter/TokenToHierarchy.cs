@@ -10,8 +10,9 @@ namespace EDO.Converter
 {
     public class TokenToHierarchy : TokenToString
     {
-        public TokenToHierarchy(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
-            : base(ignoreSubTokensOfMainTokens,
+        public TokenToHierarchy(Func<HierarchicalEntity, string> viewFunc, bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
+            : base(viewFunc,
+                   ignoreSubTokensOfMainTokens,
                    string.IsNullOrWhiteSpace(delimiterMainTokens) ? "\r\n-----\r\n" : delimiterMainTokens,
                    string.IsNullOrWhiteSpace(delimiterSubTokensOfMainTokens) ? "\r\n\r\n" : delimiterSubTokensOfMainTokens
                   )
@@ -29,7 +30,7 @@ namespace EDO.Converter
             {
                 if (token is TokenRecursive)
                 {
-                    strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Identity);
+                    strBuilder.Append(viewFunc(((HierarchicalEntity)token.TokenValue.Value)));
                 }
                 else
                 {
@@ -41,7 +42,7 @@ namespace EDO.Converter
                     }
                     else if (token.TokenValue.Value is HierarchicalEntity)
                     { 
-                        strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Identity);
+                        strBuilder.Append(viewFunc(((HierarchicalEntity)token.TokenValue.Value)));
                     }
                 }
             }

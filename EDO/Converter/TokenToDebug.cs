@@ -10,8 +10,9 @@ namespace EDO.Converter
 {
     public class TokenToDebug : TokenToString
     {
-        public TokenToDebug(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
-            : base(ignoreSubTokensOfMainTokens, 
+        public TokenToDebug(Func<HierarchicalEntity, string> viewFunc, bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
+            : base(viewFunc, 
+                   ignoreSubTokensOfMainTokens, 
                    string.IsNullOrWhiteSpace(delimiterMainTokens) ? "\r\n-----\r\n" : delimiterMainTokens, 
                    string.IsNullOrWhiteSpace(delimiterSubTokensOfMainTokens) ? "\r\n\r\n" : delimiterSubTokensOfMainTokens
                   )

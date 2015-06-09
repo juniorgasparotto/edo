@@ -9,36 +9,22 @@ namespace EDO.Converter
 {
     public class ExpressionToHierarchicalEntity
     {
-        public HierarchicalEntity Convert(params string[] expressions)
+        public ListOfHierarchicalEntity Convert(params string[] expressions)
         {
-            var root = new HierarchicalEntity("root");
-            this.Convert(root, expressions);
-            return root;
+            return this.Convert(null, expressions);
         }
 
-        public void Convert(HierarchicalEntity rootToAppy, params string[] expressions)
+        public ListOfHierarchicalEntity Convert(ListOfHierarchicalEntity paramsOfExpressions, params string[] expressions)
         {
-            if (rootToAppy == null)
-                throw new Exception("Parameter 'rootToAppy' can't be null'");
-
             expressions = expressions.Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
+            ListOfHierarchicalEntity result = new ListOfHierarchicalEntity();
 
-            this.ApplyInList(rootToAppy, expressions);
-        }
+            if (paramsOfExpressions == null)
+                result = new ListOfHierarchicalEntity();
+            else
+                result = paramsOfExpressions.ToListOfHierarchicalEntity();
 
-        //public HierarchicalEntity Convert(HierarchicalEntity edoToApply, params string[] expressions)
-        //{
-        //    if (edoToApply == null)
-        //        throw new Exception("Parameter 'edoToApply' can't be null'");
 
-        //    expressions = expressions.Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
-        //    var ret = edoToApply.ToHierarchicalEntity();
-        //    this.ApplyInList(ret, expressions);
-        //    return ret;
-        //}
-
-        private void ApplyInList(HierarchicalEntity rootToAppy, string[] expressions)
-        {
             foreach (var expression in expressions)
             {
                 var e = this.Prepare(expression);
@@ -47,20 +33,21 @@ namespace EDO.Converter
                 {
                     // FIX to back params name
                     name = name.Replace('_', '.');
-                    var listToVerify = rootToAppy.DescendantsAndThis().ToList();
-                    var objectAdd = listToVerify.FirstOrDefault(f => f.IdentityIsEquals(name));
+                    var objectAdd = result.GetByIdentity(name);
                     if (objectAdd == null)
                     {
                         objectAdd = new HierarchicalEntity(name);
-                        rootToAppy.AddChild(objectAdd);
+                        result.Add(objectAdd);
                     }
 
-                    var param = new ObjectParamExpression(objectAdd);
+                    var param = new ExpressionParam(objectAdd);
                     args.Result = param;
                 };
 
                 e.Evaluate();
             }
+
+            return result;
         }
 
         public Expression Prepare(string expression)

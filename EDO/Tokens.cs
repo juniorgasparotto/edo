@@ -35,11 +35,13 @@ namespace EDO
 
     public class TokenValue
     {
+        private Func<HierarchicalEntity, string> viewFunc;
         public object Value { get; private set; }
 
-        public TokenValue(object value)
+        public TokenValue(object value, Func<HierarchicalEntity, string> viewFunc)
         {
             this.Value = value;
+            this.viewFunc = viewFunc;
         }
 
         public override string ToString()
@@ -52,7 +54,7 @@ namespace EDO
             else if (this is TokenValueCloseParenthesis)
                 res = ")";
             else
-                res = ((HierarchicalEntity)this.Value).Identity;
+                res = viewFunc(((HierarchicalEntity)this.Value));
 
             return res;
         }
@@ -60,19 +62,19 @@ namespace EDO
 
     public class TokenValuePlus : TokenValue
     {
-        public static TokenValuePlus Instance = new TokenValuePlus();
-        private TokenValuePlus() : base(null) { }
+        public static TokenValuePlus Instance = new TokenValuePlus(null);
+        private TokenValuePlus(Func<HierarchicalEntity, string> viewFunc) : base(null, viewFunc) { }
     }
 
     public class TokenValueOpenParenthesis : TokenValue
     {
-        public static TokenValueOpenParenthesis Instance = new TokenValueOpenParenthesis();
-        private TokenValueOpenParenthesis() : base(null) { }
+        public static TokenValueOpenParenthesis Instance = new TokenValueOpenParenthesis(null);
+        private TokenValueOpenParenthesis(Func<HierarchicalEntity, string> viewFunc) : base(null, viewFunc) { }
     }
 
     public class TokenValueCloseParenthesis : TokenValue
     {
-        public static TokenValueCloseParenthesis Instance = new TokenValueCloseParenthesis();
-        private TokenValueCloseParenthesis() : base(null) { }
+        public static TokenValueCloseParenthesis Instance = new TokenValueCloseParenthesis(null);
+        private TokenValueCloseParenthesis(Func<HierarchicalEntity, string> viewFunc) : base(null, viewFunc) { }
     }
 }

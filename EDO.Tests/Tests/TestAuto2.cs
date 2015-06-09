@@ -16,6 +16,7 @@ namespace EDO.Unit
     {
         private List<TestExpression> testsExpressions;
         private DatabaseTests database;
+        Func<HierarchicalEntity, string> viewFunc = f => f.Identity.ToString();
 
         [TestInitialize]
         public void Setup()
@@ -37,16 +38,17 @@ namespace EDO.Unit
                     var strBuilder = new StringBuilder();
                     var expressionInput = test.Input;
                     var main = test.ObjectMain;
-                    var root = EdoUtils.ToHierarchicalEntity(expressionInput);
-                    var edo = EdoUtils.ToHierarchicalEntityAndGetFirst(expressionInput);
-                    var expressionOutputEdo = EdoUtils.ToExpression(edo, type);
-                    var hierarchyOutputEdo = EdoUtils.ToHierarchy(edo, type);
-                    var hierarchyInverseOutputEdo = EdoUtils.ToHierarchyInverse(edo, type);
-                    var debugOutputEdo = EdoUtils.ToDebug(edo, type);
-                    var expressionOutputRoot = EdoUtils.ToExpression(root.Descendants(), type);
-                    var hierarchyOutputRoot = EdoUtils.ToHierarchy(root.Descendants(), type);
-                    var hierarchyInverseOutputRoot = EdoUtils.ToHierarchyInverse(root.Descendants(), type);
-                    var debugOutputRoot = EdoUtils.ToDebug(root.Descendants(), type);
+                    var result = Utils.FromExpression(expressionInput).DescendantsOfAll();
+                    var edo = Utils.FromExpression(expressionInput).GetByIdentity(test.ObjectMain);
+                    var expressionOutputEdo = Utils.ToExpression(edo, viewFunc, type);
+                    var hierarchyOutputEdo = Utils.ToHierarchy(edo, viewFunc, type);
+                    var hierarchyInverseOutputEdo = Utils.ToHierarchyInverse(edo, viewFunc, type);
+                    var debugOutputEdo = Utils.ToDebug(edo, viewFunc, type);
+                    var expressionOutputRoot = Utils.ToExpression(result, viewFunc, type);
+                    var expressionOutputRoot2 = Utils.ToExpression(result, viewFunc, type, "\r\n-----\r\n");
+                    var hierarchyOutputRoot = Utils.ToHierarchy(result, viewFunc, type);
+                    var hierarchyInverseOutputRoot = Utils.ToHierarchyInverse(result, viewFunc, type);
+                    var debugOutputRoot = Utils.ToDebug(result, viewFunc, type);
 
                     strBuilder.AppendLine("-> Input");
                     strBuilder.AppendLine();

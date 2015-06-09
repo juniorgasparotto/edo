@@ -12,11 +12,13 @@ namespace EDO.Converter
     {
         private string delimiterMainTokens;
         private const string noReferenceLabel = "[no reference]";
+        private Func<HierarchicalEntity, string> viewFunc;
 
-        public TokenToHierarchyInverse(string delimiterMainTokens = null)
+        public TokenToHierarchyInverse(Func<HierarchicalEntity, string> viewFunc, string delimiterMainTokens = null)
         {
             delimiterMainTokens = string.IsNullOrEmpty(delimiterMainTokens) ? "\r\n-----\r\n" : delimiterMainTokens;
             this.delimiterMainTokens = delimiterMainTokens;
+            this.viewFunc = viewFunc;
         }
         
         public string Convert(TokenGroupCollection collection, HierarchicalEntity edoObject = null)
@@ -60,9 +62,9 @@ namespace EDO.Converter
                     strBuilder.AppendLine(noReferenceLabel);
                 else
                     foreach (var parent in child.Value)
-                        strBuilder.AppendLine(parent.Identity);
+                        strBuilder.AppendLine(viewFunc(parent));
 
-                strBuilder.Append("..." + child.Key.Identity);
+                strBuilder.Append("..." + viewFunc(child.Key));
                 if (child.GetHashCode() != last.GetHashCode())
                     strBuilder.Append(delimiterMainTokens);
             }

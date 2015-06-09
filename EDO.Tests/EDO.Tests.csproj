@@ -65,6 +65,7 @@
     <Compile Include="DatabaseTests.cs" />
     <Compile Include="TestExpression.cs" />
     <Compile Include="Tests\TestAuto2.cs" />
+    <Compile Include="Tests\TestInverse.cs" />
     <Compile Include="Tests\TestsSpecials.cs" />
     <Compile Include="Tests\TestAuto1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

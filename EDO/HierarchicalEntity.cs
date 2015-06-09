@@ -3,110 +3,146 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Collections;
 
 namespace EDO
 {
     public class HierarchicalEntity
     {
-        public UniqueIdentityList parents;
-        public UniqueIdentityList children;
+        #region Fields
 
-        public string Identity { get; private set; }
+        private ListOfHierarchicalEntity parents;
+        private ListOfHierarchicalEntity children;
 
-        public List<HierarchicalEntity> Children 
+        #endregion
+
+        #region Properties
+
+        public object Identity { get; private set; }
+
+        public ListOfHierarchicalEntity Parents
         {
             get
             {
-                return children.ToList();
+                return parents.ToListOfHierarchicalEntity();
             }
         }
 
-        public List<HierarchicalEntity> Parents
+        public ListOfHierarchicalEntity Children
         {
             get
             {
-                return parents.ToList();
+                return children.ToListOfHierarchicalEntity();
             }
         }
 
-        public HierarchicalEntity(string id)
+        #endregion
+
+        #region Constructor
+
+        public HierarchicalEntity(object identity)
         {
-            this.Identity = id;
-            this.children = new UniqueIdentityList();
-            this.parents = new UniqueIdentityList();
+            this.Identity = identity;
+            this.children = new ListOfHierarchicalEntity();
+            this.parents = new ListOfHierarchicalEntity();
         }
 
-        public void AddChild(HierarchicalEntity obj)
+        #endregion
+
+        #region Control children
+
+        public void Add(HierarchicalEntity obj)
         {
             //this.ValidateAdd(obj);
             this.children.Add(obj);
             obj.parents.Add(this);
         }
 
-        public void RemoveChild(HierarchicalEntity obj)
+        public void Remove(HierarchicalEntity obj)
         {
             if (this.children.Remove(obj))
                 obj.parents.Remove(this);
         }
 
-        public bool ExistsHierarchically(string id)
-        {
-            if (this.FindHierarchically(id) != null)
-                return true;
+        #endregion
 
-            return false;
-        }
+        #region Methods
 
-        public HierarchicalEntity FindHierarchically(string id)
+        public ListOfHierarchicalEntity Descendants()
         {
-            return this.Descendants().FirstOrDefault(f => f.IdentityIsEquals(id));
-        }
+            var list = new ListOfHierarchicalEntity();
+            var enumerable = this.children.Traverse(f => f.Children);
+            foreach (var item in enumerable)
+                list.Add(item);
 
-        public List<HierarchicalEntity> Descendants()
-        {
-            return this.Children.Traverse(f => f.Children).ToList();
-        }
-
-        public List<HierarchicalEntity> DescendantsAndThis()
-        {
-            var list = this.Descendants();
-            if (!list.Contains(this))
-                list.Add(this);
             return list;
         }
 
-        public bool IdentityIsEquals(string name)
+        public ListOfHierarchicalEntity DescendantsAndSelf()
         {
-            if (this.Identity == name)
+            var list = new ListOfHierarchicalEntity();
+            list.Add(this);
+            list.AddRange(this.Descendants());
+            return list;
+        }
+
+        public ListOfHierarchicalEntity Ancestors()
+        {
+            var list = new ListOfHierarchicalEntity();
+            var enumerable = this.Parents.Traverse(f => f.Parents);
+            foreach (var item in enumerable)
+                list.Add(item);
+
+            return list;
+        }
+
+        public ListOfHierarchicalEntity AncestorsAndSelf()
+        {
+            var list = new ListOfHierarchicalEntity();
+            list.Add(this);
+            list.AddRange(this.Ancestors());
+            return list;
+        }
+
+        public void Validate()
+        {
+            // If any error occur (duplicate ID) the exception is fired
+            this.DescendantsAndSelf();
+        }
+
+        public bool IdentityIsEquals(object name)
+        {
+            if (this.Identity.Equals(name))
                 return true;
 
             return false;
         }
+        
+        #endregion
 
-        //private void ValidateAdd(HierarchicalEntity obj)
-        //{
-        //    var found = this.FindHierarchically(obj.Identity);
-        //    if (found != null && obj != found)
-        //        throw new EntityAlreadyExistsException(string.Format("Object '{0}' already exists directly or indirectly.", obj.Identity));
-        //}
+        #region Operators
 
-        public void Validate()
+        public static HierarchicalEntity operator +(HierarchicalEntity a, HierarchicalEntity b)
         {
-            var validateIdDuplicated = new UniqueIdentityList();
-            var listToValidade = this.DescendantsAndThis();
-            foreach (var item in listToValidade)
-            {
-                try
-                {
-                    validateIdDuplicated.Add(item);
-                    validateIdDuplicated.AddRange(item.Children.Traverse(f => f.Children));
-                }
-                catch(EntityAlreadyExistsException ex)
-                {
-                    validateIdDuplicated.Clear();
-                    throw ex;
-                }
-            }
+            a.Add(b);
+            return a;
         }
+
+        public static HierarchicalEntity operator -(HierarchicalEntity a, HierarchicalEntity b)
+        {
+            a.Remove(b);
+            return a;
+        }
+
+        #endregion
+
+        #region ToString
+
+        public override string ToString()
+        {
+            return this.Identity.ToString();
+        }
+
+        #endregion
     }
 }

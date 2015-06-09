@@ -14,32 +14,161 @@ namespace EDO.Unit
     [TestClass]
     public class TestsSpecials
     {
+        Func<HierarchicalEntity, string> viewFunc = f => f.Identity.ToString();
+
         [TestMethod]
         public void TestMinus()
         {
             var type = TokenizeType.Normal;
             var convertToEdo = new ExpressionToHierarchicalEntity();
-            var converterToken = new HierarchicalEntityToToken(type);
+            var converterToken = new HierarchicalEntityToToken(viewFunc, type);
 
             var expressionInput = "A + (B + (C + D)) + (C - D)";
-            var root = convertToEdo.Convert(expressionInput);
-            var tokensCollection = converterToken.Convert(root.Descendants());
+            var result = convertToEdo.Convert(expressionInput);
+            var tokensCollection = converterToken.Convert(result);
 
             //Test1
-            var edo = root.FindHierarchically("A");
-            var expressionOutput = GetExpressionWithThisInclude(edo, type);
+            var edo = result.GetByIdentity("A");
+            var expressionOutput = ExecuteExpression(edo, type);
             Assert.IsTrue(expressionOutput == "A + (B + C) + C", "Teste 1");
 
             //Test2
-            convertToEdo.Convert(root, "B-C");
-            expressionOutput = GetExpressionWithThisInclude(edo, type);
+            convertToEdo.Convert(result, "B-C");
+            expressionOutput = ExecuteExpression(edo, type);
             Assert.IsTrue(expressionOutput == "A + B + C", "Teste 2");
 
             //Test3 using EdoUtils
             //convertToEdo.Convert(root, "A+Y+Z+J; A-Y; ".Split(';'));
-            EdoUtils.ApplyExpression(edo, "A+Y+Z+J; A-Y; ".Split(';'));
-            expressionOutput = GetExpressionWithThisInclude(edo, type);
+            Utils.FromExpression(edo.DescendantsAndSelf(), "A+Y+Z+J; A-Y; ".Split(';'));
+            expressionOutput = ExecuteExpression(edo, type);
             Assert.IsTrue(expressionOutput == "A + B + C + Z + J", "Teste 3 using EdoUtils");
+        }
+
+        [TestMethod]
+        public void TestUsingCSharpExpression()
+        {
+            var a = new HierarchicalEntity("a");
+            var b = new HierarchicalEntity("b");
+            var c = new HierarchicalEntity("c");
+            var d = new HierarchicalEntity("d");
+
+            a += b + c + d;
+            var output = Utils.ToExpression(a, viewFunc);
+            Assert.IsTrue(output == "a + (b + c + d)", "Test add with +=");
+
+            a -= b - c - d;
+            output = Utils.ToExpression(a, viewFunc);
+            Assert.IsTrue(output == "a", "Test remove all with -=");
+
+            a = a + b + c + d;
+            output = Utils.ToExpression(a, viewFunc);
+            Assert.IsTrue(output == "a + b + c + d", "Test add with =, is different the +=");
+
+            b = b + c + d;
+            output = Utils.ToExpression(b, viewFunc);
+            Assert.IsTrue(output == "b + c + d", "Test add 2");
+
+            b = b + c + d;
+            output = Utils.ToExpression(b, viewFunc);
+            Assert.IsTrue(output == "b + c + d", "Test tentative duplicate");
+
+            b = b - c - d;
+            output = Utils.ToExpression(b, viewFunc);
+            Assert.IsTrue(output == "b", "Test remove all 'b'");
+
+            b = b + c + d - d - c;
+            output = Utils.ToExpression(b, viewFunc);
+            Assert.IsTrue(output == "b", "Test add and remove together");
+            
+            a = a + (b + c + b + a) + (c + d);
+            output = Utils.ToExpression(a, viewFunc);
+            Assert.IsTrue(output == "a + (b + (c + d) + b + a) + c + d", "Test add complex");
+            Assert.IsTrue(Utils.ToExpression(a.Descendants(), viewFunc) == "b + (c + d) + b + (a + b + c + d)\r\nc + d\r\nd\r\na + (b + (c + d) + b + a) + c + d", "Test 'Descendants'");
+            Assert.IsTrue(Utils.ToExpression(a.DescendantsAndSelf(), viewFunc) == "a + (b + (c + d) + b + a) + c + d\r\nb + (c + d) + b + (a + b + c + d)\r\nc + d\r\nd", "Test 'DescendantsAndThis'");
+        }
+
+        [TestMethod]
+        public void TestIdentityWithSpacesOrIntFAILURE()
+        {
+            // This failure because exists spaces
+            var failure = Utils.FromExpression("\"p1 teste\" + \"p2 teste 2\" + \"p3 teste 4\" + \"p4 teste 5\"");
+
+            // This failure because ncalc process by int
+            var failure2 = Utils.FromExpression("1 + 2 + 3");
+
+            // This failure because ncalc process by int too
+            var failure3 = Utils.FromExpression("\"1\" + \"2\" + \"3\"");
+
+            // This failure because ncalc lost
+            var p1 = Utils.FromExpression("\"p1\" + \"p2\" + \"p3\" + \"p4\"");
+        }
+
+        [TestMethod]
+        public void TestTwoRootsNotRelationalFAILURE()
+        {
+            var resultNatural = Utils.FromExpression("A + B", "C + D");
+            var resultLogical = resultNatural.DescendantsOfAll();
+
+            var output = Utils.ToExpression(resultNatural, viewFunc);
+            Assert.IsTrue(output == "", "Test natural order");
+
+            output = Utils.ToExpression(resultLogical, viewFunc);
+            Assert.IsTrue(output == "", "Test logical order");
+        }
+
+        [TestMethod]
+        public void TestNaturalAndLogicalOrder()
+        {
+            var resultNatural = Utils.FromExpression("A + B", "C + A", "D + E + J", "B+D");
+            var resultLogical = resultNatural.DescendantsOfAll();
+
+            var output = Utils.ToExpression(resultNatural, viewFunc);
+            Assert.IsTrue(output == "A + (B + (D + E + J))\r\nB + (D + E + J)\r\nC + (A + (B + (D + E + J)))\r\nD + E + J\r\nE\r\nJ", "Test natural order");
+
+            output = Utils.ToExpression(resultLogical, viewFunc);
+            Assert.IsTrue(output == "A + (B + (D + E + J))\r\nB + (D + E + J)\r\nD + E + J\r\nE\r\nJ\r\nC + (A + (B + (D + E + J)))", "Test logical order");
+        }
+
+        [TestMethod]
+        public void TestExecuteExpressionNormal()
+        {
+            var result = Utils.FromExpression("p1 + p2 + p3 + p4");
+            var p1 = result.GetByIdentity("p1");
+
+            var output = Utils.ToExpression(p1, viewFunc);
+            Assert.IsTrue(output == "p1 + p2 + p3 + p4", "Test root");
+
+            Utils.FromExpression(p1.DescendantsAndSelf(), "p1+(D+C)");
+            output = Utils.ToExpression(p1, viewFunc);
+            Assert.IsTrue(output == "p1 + p2 + p3 + p4 + (D + C)", "Test withot specify 'p1' in expression");
+
+            Utils.FromExpression(p1.DescendantsAndSelf(), "p1+(a+b+c)");
+            output = Utils.ToExpression(p1, viewFunc);
+            Assert.IsTrue(output == "p1 + p2 + p3 + p4 + (D + C) + (a + b + c)", "Test specify 'p1' in expression");
+
+            Utils.FromExpression(p1.DescendantsAndSelf(), "p1+h+j");
+            output = Utils.ToExpression(p1, viewFunc);
+            Assert.IsTrue(output == "p1 + p2 + p3 + p4 + (D + C) + (a + b + c) + h + j", "Test specify 'p1' in expression 2");
+
+            Utils.FromExpression(p1.DescendantsAndSelf(), "p1+p1");
+            output = Utils.ToExpression(p1, viewFunc);
+            Assert.IsTrue(output == "p1 + p2 + p3 + p4 + (D + C) + (a + b + c) + h + j + p1", "Test specify 'p1' and add 'p1' again");
+        }
+
+        [TestMethod]
+        public void TestExecuteExpressionNeverRepeat()
+        {
+            var result = Utils.FromExpression("p1 + p2 + p3 + (p4 + p5)");
+            var output = Utils.ToExpression(result.GetByIdentity("p1"), viewFunc, TokenizeType.NeverRepeatDefinedTokenIfAlreadyParsed);
+        }
+
+        [TestMethod]
+        public void TestViewAsHashCode()
+        {
+            var result = Utils.FromExpression("p1 + p2 + p3 + p4");
+            var output = Utils.ToExpression(result, f => f.GetHashCode().ToString());
+            foreach (var item in result)
+                Assert.IsTrue(output.Contains(item.GetHashCode().ToString()), "Test hashcode with view in expression");
         }
 
         [TestMethod]
@@ -47,42 +176,42 @@ namespace EDO.Unit
         {
             var type = TokenizeType.Normal;
             var convertToEdo = new ExpressionToHierarchicalEntity();
-            var converterToken = new HierarchicalEntityToToken(type);
+            var converterToken = new HierarchicalEntityToToken(viewFunc, type);
 
             // Test create root by expression
             var expressionInput = "A + (B + (C + D)) + C";
-            var root = convertToEdo.Convert(expressionInput);
+            var result = convertToEdo.Convert(expressionInput);
 
             // Basic test object 'A'
-            var edoA = root.FindHierarchically("A");            
-            var edoB = root.FindHierarchically("B");
-            var edoC = root.FindHierarchically("C");
-            var edoD = root.FindHierarchically("D");
+            var edoA = result.GetByIdentity("A");            
+            var edoB = result.GetByIdentity("B");
+            var edoC = result.GetByIdentity("C");
+            var edoD = result.GetByIdentity("D");
 
-            var expressionOutput = GetExpressionWithThisInclude(edoA, type);
+            var expressionOutput = ExecuteExpression(edoA, type);
             Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C", "Teste 1");
-            Assert.IsTrue(EdoUtils.ToExpression(edoB.DescendantsAndThis()) == "B + (C + D)");
-            Assert.IsTrue(EdoUtils.ToExpression(edoC.DescendantsAndThis()) == "C + D");
-            Assert.IsTrue(EdoUtils.ToExpression(edoD.DescendantsAndThis()) == "D");
+            Assert.IsTrue(Utils.ToExpression(edoB.DescendantsAndSelf(), viewFunc) == "B + (C + D)");
+            Assert.IsTrue(Utils.ToExpression(edoC.DescendantsAndSelf(), viewFunc) == "C + D");
+            Assert.IsTrue(Utils.ToExpression(edoD.DescendantsAndSelf(), viewFunc) == "D");
 
             // Test add exists object "D"
-            EdoUtils.ApplyExpression(edoA, "A+D; ".Split(';'));
-            expressionOutput = GetExpressionWithThisInclude(edoA, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
+            Utils.FromExpression(edoA.DescendantsAndSelf(), "A+D; ".Split(';'));
+            expressionOutput = ExecuteExpression(edoA, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
             Assert.IsTrue(expressionOutput == "A + (B + (C + D)) + C + D", "Test new root deriveted the object A");
 
             // Test remove 'A'
-            root.RemoveChild(edoA);
-            expressionOutput = GetExpressionWithThisInclude(root, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
+            result.Remove(edoA);
+            expressionOutput = ExecuteExpression(edoA, type).Split(new string[] { "\r\n" }, StringSplitOptions.None)[0];
             Assert.IsTrue(expressionOutput == "B + (C + D)", "Teste remove A of root");
 
             // Test add again
-            root.AddChild(edoA);
-            expressionOutput = GetExpressionWithThisInclude(root, type);
+            result.Add(edoA);
+            expressionOutput = ExecuteExpression(edoA, type);
             Assert.IsTrue(expressionOutput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D", "Teste add again");
             
             try
             {
-                edoA.AddChild(new HierarchicalEntity("D"));
+                edoA.Add(new HierarchicalEntity("D"));
             }
             catch(EntityAlreadyExistsException ex)
             {
@@ -90,21 +219,21 @@ namespace EDO.Unit
             }
 
             var y = new HierarchicalEntity("Y");
-            edoA.AddChild(y);
-            EdoUtils.ApplyExpression(y, "Y+Z+J");
+            edoA.Add(y);
+            Utils.FromExpression(y.DescendantsAndSelf(), "Y+Z+J");
 
-            expressionInput = EdoUtils.ToExpression(edoA.DescendantsAndThis());
+            expressionInput = Utils.ToExpression(edoA.DescendantsAndSelf(), viewFunc);
             Assert.IsTrue(expressionInput == "A + (B + (C + D)) + C + D + (Y + Z + J)");
 
-            EdoUtils.ApplyExpression(edoA, "A+Z");
-            expressionInput = EdoUtils.ToExpression(edoA.DescendantsAndThis());
+            Utils.FromExpression(edoA.DescendantsAndSelf(), "A+Z");
+            expressionInput = Utils.ToExpression(edoA.DescendantsAndSelf(), viewFunc);
             Assert.IsTrue(expressionInput == "A + (B + (C + D)) + C + D + (Y + Z + J) + Z");
 
             // New 'J' directly o.AddReference            
             try
             {
                 var j = new HierarchicalEntity("J");
-                edoA.AddChild(j);
+                edoA.Add(j);
             }
             catch (EntityAlreadyExistsException ex)
             {
@@ -112,11 +241,11 @@ namespace EDO.Unit
             }
 
             // Danify collectin because is add directly in object of 3 level
-            EdoUtils.ApplyExpression(y, "Y+B");
+            Utils.FromExpression(y.DescendantsAndSelf(), "Y+B");
 
             try
             {
-                expressionInput = EdoUtils.ToExpression(edoA.Descendants());
+                expressionInput = Utils.ToExpression(edoA.Descendants(), viewFunc);
             }
             catch (EntityAlreadyExistsException ex)
             {
@@ -125,7 +254,7 @@ namespace EDO.Unit
 
             try
             {
-                expressionInput = EdoUtils.ToExpression(root.Descendants());
+                expressionInput = Utils.ToExpression(result, viewFunc);
             }
             catch (EntityAlreadyExistsException ex)
             {
@@ -133,12 +262,12 @@ namespace EDO.Unit
             }
 
             // Saving root
-            y.RemoveChild(y.FindHierarchically("B"));
-            expressionInput = EdoUtils.ToExpression(root.Descendants());
+            y.Remove(y.Descendants().GetByIdentity("B"));
+            expressionInput = Utils.ToExpression(result, viewFunc);
             Assert.IsTrue(expressionInput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D + (Y + Z + J) + Z\r\nY + Z + J\r\nZ\r\nJ", "Test");
-            
-            EdoUtils.ApplyExpression(y, "Y + L");
-            expressionInput = EdoUtils.ToExpression(root.Descendants());
+
+            Utils.FromExpression(y.DescendantsAndSelf(), "Y + L");
+            expressionInput = Utils.ToExpression(result, viewFunc);
             Assert.IsTrue(expressionInput == "B + (C + D)\r\nC + D\r\nD\r\nA + (B + (C + D)) + C + D + (Y + Z + J + L) + Z\r\nL\r\nY + Z + J + L\r\nZ\r\nJ", "Test");
         }
 
@@ -146,10 +275,10 @@ namespace EDO.Unit
         public void TestParseTokens()
         {
             var expressionInput = "A + (B + (C + D)) + C";
-            var root = CreateRoot(expressionInput);
-            var converterToken = new HierarchicalEntityToToken(TokenizeType.Normal);
-            var edoTest = root.FindHierarchically("A");
-            var tokenResult = converterToken.Convert(edoTest.DescendantsAndThis());
+            var result = ExecuteExpression(expressionInput);
+            var converterToken = new HierarchicalEntityToToken(viewFunc, TokenizeType.Normal);
+            var edoTest = result.GetByIdentity("A");
+            var tokenResult = converterToken.Convert(edoTest.DescendantsAndSelf());
             var tokens = tokenResult[edoTest].MainTokens.ToList();
 
             Assert.IsTrue(tokens[0].TokenValue.ToString() == "A");
@@ -217,19 +346,19 @@ namespace EDO.Unit
         public void TestUniqueExpression()
         {
             var expressionInput = "A + (B + (C + D)) + C";
-            var root = CreateRoot(expressionInput);
-            var converterToken = new HierarchicalEntityToToken(TokenizeType.Normal);
+            var result = ExecuteExpression(expressionInput);
+            var converterToken = new HierarchicalEntityToToken(viewFunc, TokenizeType.Normal);
 
             // Tanto faz se ira ignorar ou não os subtokens, pois abaixo trabalha diretament com os tokens
-            var converterExpression = new TokenToExpression();
-            var tokensCollection = converterToken.Convert(root.Descendants());
+            var converterExpression = new TokenToExpression(viewFunc);
+            var tokensCollection = converterToken.Convert(result);
 
-            var edoMain = root.FindHierarchically("A");
+            var edoMain = result.GetByIdentity("A");
             var expressionOutput = converterExpression.Convert(tokensCollection[edoMain].MainTokens);
             Assert.IsTrue(expressionInput == expressionOutput);
 
             // Other method override and the same instances
-            tokensCollection = converterToken.Convert(edoMain.DescendantsAndThis());
+            tokensCollection = converterToken.Convert(edoMain.DescendantsAndSelf());
 
             var expressionOutput2 = converterExpression.Convert(tokensCollection[edoMain].MainTokens);
             Assert.IsTrue(expressionInput == expressionOutput2);
@@ -237,19 +366,17 @@ namespace EDO.Unit
 
         #region Helpers
 
-        public HierarchicalEntity CreateRoot(string exp)
+        public ListOfHierarchicalEntity ExecuteExpression(string exp)
         {
-            var root = new HierarchicalEntity("root");
             var writer = new ExpressionToHierarchicalEntity();
-            writer.Convert(root, exp);
-            return root;
+            return writer.Convert(exp);
         }
 
-        public string GetExpressionWithThisInclude(HierarchicalEntity edo, TokenizeType type)
+        public string ExecuteExpression(HierarchicalEntity edo, TokenizeType type)
         {
-            var converterToken = new HierarchicalEntityToToken(type);
-            var tokens = converterToken.Convert(edo.DescendantsAndThis());
-            var converterExpression = new TokenToExpression();
+            var converterToken = new HierarchicalEntityToToken(viewFunc, type);
+            var tokens = converterToken.Convert(edo.DescendantsAndSelf());
+            var converterExpression = new TokenToExpression(viewFunc);
             return converterExpression.Convert(tokens[edo].MainTokens);
         }
 

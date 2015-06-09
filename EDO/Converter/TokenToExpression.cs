@@ -7,8 +7,8 @@ namespace EDO.Converter
 {
     public class TokenToExpression : TokenToString
     {
-        public TokenToExpression(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
-            : base(ignoreSubTokensOfMainTokens, delimiterMainTokens, delimiterSubTokensOfMainTokens)
+        public TokenToExpression(Func<HierarchicalEntity, string> viewFunc, bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
+            : base(viewFunc, ignoreSubTokensOfMainTokens, delimiterMainTokens, delimiterSubTokensOfMainTokens)
         {
         }
 
@@ -20,7 +20,7 @@ namespace EDO.Converter
             {
                 if (token is TokenRecursive)
                 {
-                    strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Identity);
+                    strBuilder.Append(viewFunc((HierarchicalEntity)token.TokenValue.Value));
                 }
                 else
                 {
@@ -31,7 +31,7 @@ namespace EDO.Converter
                     else if (token.TokenValue is TokenValueCloseParenthesis)
                         strBuilder.Append(")");
                     else
-                        strBuilder.Append(((HierarchicalEntity)token.TokenValue.Value).Identity);
+                        strBuilder.Append(viewFunc(((HierarchicalEntity)token.TokenValue.Value)));
                 }
             }
 

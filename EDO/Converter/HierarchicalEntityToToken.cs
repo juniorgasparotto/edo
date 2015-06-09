@@ -8,35 +8,25 @@ using System.Diagnostics;
 namespace EDO.Converter
 {
     /// <summary>
-    /// Expression of dependence of objects (EDO) - Tokenize
+    /// 
     /// </summary>
     public class HierarchicalEntityToToken
     {
+        private Func<HierarchicalEntity, string> viewFunc;
         public TokenizeType Type { get; private set; }
 
-        public HierarchicalEntityToToken(TokenizeType typeReading = TokenizeType.Normal)
+        public HierarchicalEntityToToken(Func<HierarchicalEntity, string> viewFunc, TokenizeType typeReading = TokenizeType.Normal)
         {
             this.Type = typeReading;
+            this.viewFunc = viewFunc;
         }
 
         #region Parse tokens
 
-        //public TokenGroupCollection Convert(HierarchicalEntity collection)
-        //{
-        //    // Update to prevent collection outdated
-        //    collection.Refresh();
-
-        //    var res = new TokenGroupCollection();
-        //    foreach (var obj in collection)
-        //        res.Add(this.GetToGroup(obj));
-
-        //    return res;
-        //}
-
-        public TokenGroupCollection Convert(HierarchicalEntity root)
+        public TokenGroupCollection Convert(HierarchicalEntity entity)
         {
             var res = new TokenGroupCollection();
-            res.Add(this.GetToGroup(root));
+            res.Add(this.GetToGroup(entity));
             return res;
         }
 
@@ -104,9 +94,8 @@ namespace EDO.Converter
                         }
                         else
                         {
-                            // No make sense in practice (circular reference), 
-                            // but is fixes for prevent a infinite call
-                            if (exists != null && next.ExistsHierarchically(next.Identity))
+                            // Prevent circular reference (prevent infinite call)
+                            if (exists != null && next.Descendants().Contains(next))
                             {
                                 tokenParsedBag.Add(edoObj, CreateTokenOperand<TokenValuePlus>(newTokenCurrent, level));
                                 tokenParsedBag.Add(edoObj, new TokenRecursive(exists.TokenValue, newTokenCurrent, level));
@@ -220,7 +209,7 @@ namespace EDO.Converter
             if (exists != null)
                 return new Token(exists.TokenValue, tokenParent, level);
 
-            return new Token(new TokenValue(obj), tokenParent, level); ;
+            return new Token(new TokenValue(obj, viewFunc), tokenParent, level); ;
         }
 
         #endregion

@@ -10,8 +10,9 @@ namespace EDO.Converter
         private bool ignoreSubTokensOfMainTokens;
         private string delimiterMainTokens;
         private string delimiterSubTokensOfMainTokens;
+        protected Func<HierarchicalEntity, string> viewFunc;
 
-        public TokenToString(bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
+        public TokenToString(Func<HierarchicalEntity, string> viewFunc, bool ignoreSubTokensOfMainTokens = true, string delimiterMainTokens = null, string delimiterSubTokensOfMainTokens = null)
         {
             delimiterSubTokensOfMainTokens = string.IsNullOrEmpty(delimiterSubTokensOfMainTokens) ? "\r\n" : delimiterSubTokensOfMainTokens;
             delimiterMainTokens = string.IsNullOrEmpty(delimiterMainTokens) ? "\r\n" : delimiterMainTokens;
@@ -19,6 +20,7 @@ namespace EDO.Converter
             this.ignoreSubTokensOfMainTokens = ignoreSubTokensOfMainTokens;
             this.delimiterMainTokens = delimiterMainTokens;
             this.delimiterSubTokensOfMainTokens = delimiterSubTokensOfMainTokens;
+            this.viewFunc = viewFunc;
         }
 
         public abstract string Convert(List<Token> tokens);
