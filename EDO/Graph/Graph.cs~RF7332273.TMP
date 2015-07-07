@@ -1,0 +1,216 @@
+﻿// This program prints out basic information about the crash dump specified.
+//
+// The platform must match what you are debugging, as we have to load the dac, a native dll.
+
+using EDO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Graph
+{
+    public class Graph<T>
+    {
+        private List<List<KeyValuePair<Iteration<T>, Edge<T>>>> storagePathes;
+        private List<KeyValuePair<Iteration<T>, Edge<T>>> currentPath;
+        private List<KeyValuePair<Iteration<T>, Edge<T>>> lastPath;
+
+        private List<Vertex<T>> vertexes;
+        private List<Edge<T>> edges;
+
+        private List<Path<T>> storagePathes2;
+        private Path<T> currentPath2;
+        private Path<T> lastPath2;
+
+        public int CountIteration { get; private set; }
+        public string ReadingOrder { get; private set; }
+
+        private Graph()
+        {
+            //this.storagePathes = new List<List<KeyValuePair<Iteration<T>, Edge<T>>>>();
+            //this.currentPath = new List<KeyValuePair<Iteration<T>, Edge<T>>>();
+
+            this.storagePathes2 = new List<Path<T>>();
+            this.currentPath2 = new Path<T>();
+        }
+
+        public static List<Graph<T>> ToGraphs(IEnumerable<T> source, Func<T, List<T>> nextVertexCallback)
+        {
+            var iterations = new List<Iteration<T>>();
+            
+            //Iteration<T> lastIteration = null;
+            var iteration = new Iteration<T>()
+            {
+                Enumerator = source.GetEnumerator(),
+                Level = 0,
+                DataKeyIteration = default(T)
+            };
+
+            iterations.Add(iteration);
+
+            var graph = new Graph<T>();
+            var graphs = new List<Graph<T>>();
+
+            graphs.Add(graph);
+
+            var countIterationForAll = 0;
+            var allCountAlreadyFinishedIterationForAll = 0;
+
+            while (true)
+            {
+                bool executed = false;
+                Vertex<T> vertexParent = null;
+                Edge<T> currentEdge = new Edge<T>();;
+
+                while (iteration.Enumerator.MoveNext())
+                {
+                    countIterationForAll++;
+                    graph.CountIteration++;
+                    executed = true;
+
+                    var data = iteration.Enumerator.Current;
+                    Vertex<T> vertex = null;
+                    
+                    if (!vertexes.ContainsKey(data))
+                    {
+                        vertex = new Vertex<T>(data, vertexes.Count + 1);
+                        vertexes.Add(data, vertex);
+                    }
+                    else
+                    {
+                        vertex = vertexes[data];
+                    }
+
+                    var edge = edges.FirstOrDefault(f => f.Source == vertexParent && f.Target == vertex);
+
+                    if (edge == null)
+                    {
+                        edge = currentEdge;
+                        if (edge.Source == null)
+                        {
+                            edge.Source = vertex;
+                            edges.Add(edge);
+                        }
+
+
+                        if (edge.Target == null)
+                        {
+                            edge.Target = vertex;
+                            currentEdge = new Edge<T>();
+                        }
+                    }
+                    
+                    // Prevent recursion, infinite loop
+                    var exists = graph.ExistsInCurrentPath(edge);
+
+                    // Add in current graph
+                    graph.AddInCurrentPath(iteration, edge);
+
+                    // Specify sequencial iteration
+                    graph.ReadingOrder += (string.IsNullOrWhiteSpace(graph.ReadingOrder) ? "" : ".") + "[" + vertex.ToString() + "]";
+
+                    // Get nexts vertexes
+                    var nexts = nextVertexCallback(data);
+
+                    if (nexts != null && nexts.Count > 0 && !exists)
+                    {
+                        vertexParent = vertex;
+                        iteration = new Iteration<T>()
+                        {
+                            Enumerator = nexts.GetEnumerator(),
+                            Level = iteration.Level++,
+                            DataKeyIteration = iteration.Enumerator.Current,
+                        };
+
+                        iterations.Add(iteration);
+                    }
+                    else
+                    {
+                        graph.ClosePath();
+                    }
+                }
+
+                if (!executed)
+                {
+                    allCountAlreadyFinishedIterationForAll++;
+                    graph.CountIteration++;
+                }
+
+                // Remove iteration because is empty
+                iterations.Remove(iteration);
+
+                if (iterations.Count == 0)
+                    break;
+
+                iteration = iterations.LastOrDefault();
+
+                if (iteration.DataKeyIteration == null)
+                {   
+                    graph = new Graph<T>();
+                    graphs.Add(graph);
+                }
+            }
+
+            var debug = countIterationForAll + allCountAlreadyFinishedIterationForAll;
+            return graphs;
+        }
+
+        private void AddInCurrentPath(Iteration<T> iteration, Edge<T> edge)
+        {
+            //if (this.currentPath == null)
+            //{
+            //    this.currentPath = new List<KeyValuePair<Iteration<T>, Edge<T>>>();
+
+            //    if (lastPath != null && lastPath.Where(f => f.Key == iteration).Any())
+            //    {
+            //        foreach (var path in lastPath)
+            //            if (path.Key == iteration)
+            //                break;
+            //            else
+            //                this.currentPath.Add(path);
+            //    }
+            //}
+
+            //this.currentPath.Add(new KeyValuePair<Iteration<T>, Edge<T>>(iteration, edge));
+
+            //***
+            if (this.currentPath2 == null)
+            {
+                this.currentPath2 = new Path<T>();
+
+                if (lastPath2 != null && lastPath2.Where(f => f.Key == iteration).Any())
+                {
+                    foreach (var path in lastPath2)
+                        if (path.Key == iteration)
+                            break;
+                        else
+                            this.currentPath2.Add(path);
+                }
+            }
+
+            this.currentPath2.Add(new PathItem<T>(edge, iteration.Level));
+        }
+
+        private void ClosePath()
+        {
+            //this.storagePathes.Add(currentPath);
+            //this.lastPath = this.currentPath;
+            //this.currentPath = null;
+
+            this.storagePathes2.Add(currentPath2);
+            this.lastPath2 = this.currentPath2;
+            this.currentPath2 = null;
+        }
+
+        private bool ExistsInCurrentPath(Edge<T> edge)
+        {
+            //if (this.currentPath != null)
+            //    return this.currentPath.Where(f => f.Value == edge).Any();
+
+            if (this.currentPath2 != null)
+                return this.currentPath2.Where(f => f.Edge == edge).Any();
+
+            return false;
+        }
+    }
+}

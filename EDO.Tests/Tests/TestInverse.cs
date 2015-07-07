@@ -37,33 +37,53 @@ namespace EDO.Unit
         public void TestPaths()
         {
             var list = Utils.FromExpression("A+(B+C+D)+A+(I+(J+C)+A)");
+            //list = Utils.FromExpression("A+B+C+D+(K+E)", "E+J+I+P", "M+N", "C+K+E");
+            //list = Utils.FromExpression("A+B", "B+C+I", "B+I+(J+I)", "K+I");
+            list = Utils.FromExpression("A + (B + (C + D))", "D + (C + (B + A))");
+            list = Utils.FromExpression("B + (C + (D + C) + B) + (A + B)");
+            list = Utils.FromExpression("A + (B + (C + D)) + (I+B) + (J+B)");
+            list = Utils.FromExpression("A + (I+B) + (B + (C + D)) + (J+B)");
+
+            var a = Utils.ToExpression(list, viewFunc);
+            //var list2 = new List<HierarchicalEntity>();
+            //list2.Add(list.GetByIdentity("B"));
+            //list2.Add(list.GetByIdentity("C"));
+            //list2.Add(list.GetByIdentity("N"));
+            //list2.Add(list.GetByIdentity("M"));
+            //list2.Add(list.GetByIdentity("D"));
+            //list2.Add(list.GetByIdentity("P"));
+            //list2.Add(list.GetByIdentity("I"));
+            //list2.Add(list.GetByIdentity("J"));
+            //list2.Add(list.GetByIdentity("E"));
+            //list2.Add(list.GetByIdentity("A"));
+            var list2 = new List<HierarchicalEntity>();
+            list2.Add(list.GetByIdentity("J"));
+            list2.Add(list.GetByIdentity("B"));
+            list2.Add(list.GetByIdentity("I"));
+            list2.Add(list.GetByIdentity("A"));
+            list2.Add(list.GetByIdentity("C"));
+            list2.Add(list.GetByIdentity("D"));
+
             var ret = "";
             var ret2 = "";
 
-            var branches = list.ToBranches(f => f.Children).ToList();
-            var roots = branches.Roots().ToList();
+            var branches = list2.ToPaths(f => f.Children).ToList();
+            var teste = branches.FirstOrDefault().Root.Get().ToList();
+            var roots = branches.RemoveCoexistent().ToList();
+            var entities = roots.Roots().ToList();
+            var group1 = branches.Group1();
 
             foreach (var item in branches)
             {
-                ret += item.ToString();
+                ret += item.Debug();
                 ret += "\r\n";
             }
 
-            foreach (var item in branches)
+            foreach (var item in roots)
             {
-                foreach (var item2 in branches)
-                {
-                    //if (item.IsDescendantOf(item2))
-                    //{
-                    //    ret2 += string.Format("Item {0} is descendants of item 2 {1} - {2} == {3} & {4} = {5}", item.Entity.ToString(), item2.Entity.ToString(), item.ToString(), item.BinaryPath.ToString(), item2.BinaryId, item.BinaryPath & item2.BinaryId);
-                    //    ret2 += "\r\n";
-                    //}
-                }
+                ret2 += item.Debug();
+                ret2 += "\r\n";
             }
-
-            var a = 8;
-            var b = 16;
-            var c = a & b;
         }
 
         [TestMethod]
